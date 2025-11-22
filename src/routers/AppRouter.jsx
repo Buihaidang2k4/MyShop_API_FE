@@ -29,7 +29,6 @@ export default function AppRouter() {
           <Route path='manage-purchase-history' element={<Manage_purchase_history />} />
           <Route path='manage-membership-levels-and-benefits' element={<Manage_membership_levels_and_benefits />} />
         </Route>
-
       </Route>
 
       {/* Auth Pages */}

@@ -124,7 +124,7 @@ export default function Manager() {
 
                         <div className="hidden md:block h-[1px] w-full bg-gray-300 my-2"></div>
                         {/* end sidebar */}
-                        <div className="mt-6 text-center space-y-2 ">
+                        <div className="mt-6 text-center space-y-2 lg:hidden ">
                             <p className="text-base font-medium text-gray-700">Tải ứng dụng để trải nghiệm tốt hơn</p>
 
                             <div className="flex justify-center">

@@ -14,6 +14,8 @@ const authService = {
     { headers: { 'Content-Type': 'application/json' } }
   ),
   register: (data) => instance.post(`/register`, data),
+  forgotPassword:(data) => instance.post(`/forgot-password`, data),
+  resetPassword: (data) => instance.put(`/reset-password`, data), // otp 
   logout: () => instance.post(`/logout`),
   refresh_token: () => instance.post(`/refresh`),
   introspect: () => instance.post(`/introspect`),
@@ -28,8 +30,7 @@ const authService = {
       console.error("Error verify token:", error);
       return { valid: false };
     }
-  }
-
+  },
 };
 
 export default authService;

@@ -1,7 +1,7 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPenToSquare } from "@fortawesome/free-solid-svg-icons";
 import { useState } from "react";
-import Manager_form_information from "./manager-item/Manager_form_Information";
+import Manager_form_information from "./manager-item/Form_Information";
 import useUserInfor from "@/hooks/user/useUserInfor";
 
 export default function UserInfo() {
@@ -9,13 +9,11 @@ export default function UserInfo() {
   // const [showFormAddress, setShowFormAddress] = useState(false);
   // const [showFormPassword, setShowFormPassword] = useState(false);
 
-  const { userInfo, loading } = useUserInfor();
+  const { data: user, isLoading } = useUserInfor();
 
-
-  if (loading) {
+  if (isLoading) {
     return <div>Loading...</div>;
   }
-
 
   return (
     <div className="flex flex-col gap-6">
@@ -33,30 +31,30 @@ export default function UserInfo() {
         </div>
 
         {/*  Nội dùng */}
-        <div className="grid grid-cols-2 gap-x-8 gap-y-4 text-sm text-gray-700">
+        <div className="grid xl:grid-cols-2 gap-x-8 gap-y-4 text-sm text-gray-700 sm:grid-cols-1">
           <div className="flex justify-between border-b border-gray-200 pb-2">
             <span className="font-medium text-gray-500">Họ và tên:</span>
-            <span className="font-semibold">{userInfo.userProfile.username || "Default User"}</span>
+            <span className="font-semibold">{user.userProfile.username || "Default User"}</span>
           </div>
 
           <div className="flex justify-between border-b border-gray-200 pb-2">
             <span className="font-medium text-gray-500">Số điện thoại:</span>
-            <span className="font-semibold">{userInfo.userProfile.mobileNumber != undefined ? userInfo.userProfile.mobileNumber : "-"}</span>
+            <span className="font-semibold">{user.userProfile.mobileNumber != undefined ? user.userProfile.mobileNumber : "-"}</span>
           </div>
 
           <div className="flex justify-between border-b border-gray-200 pb-2">
             <span className="font-medium text-gray-500">Giới tính:</span>
-            <span className="font-semibold">{userInfo.userProfile.gender != undefined ? (userInfo.userProfile.gender == 0 ? "Nam" : "Nữ") : "-"}</span>
+            <span className="font-semibold">{user.userProfile.gender != undefined ? (user.userProfile.gender === false ? "Nam" : "Nữ") : "-"}</span>
           </div>
 
           <div className="flex justify-between border-b border-gray-200 pb-2">
             <span className="font-medium text-gray-500">Email:</span>
-            <span className="font-semibold">{userInfo.email || "-"}</span>
+            <span className="font-semibold">{user.email || "-"}</span>
           </div>
 
           <div className="flex justify-between border-b border-gray-200 pb-2">
             <span className="font-medium text-gray-500">Ngày sinh:</span>
-            <span className="font-semibold">{userInfo.userProfile.birthDate != undefined ? userInfo.userProfile.birthDate : "-"}</span>
+            <span className="font-semibold">{user.userProfile.birthDate != undefined ? user.userProfile.birthDate : "-"}</span>
           </div>
 
           <div className="flex justify-between border-b border-gray-200 pb-2">

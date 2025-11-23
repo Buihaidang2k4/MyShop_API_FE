@@ -12,6 +12,6 @@ const instance = axios.create(
 const userService = {
     getAll: () => instance.get(`/all`),
     getAddressById: (addressId) => instance.get(`/${addressId}`),
-    updateAddress: (addressId,data) => instance.post(`/${addressId}/update`, data),
+    updateAddress: (addressId,data) => instance.put(`/${addressId}/update`, data),
 };
 export default userService;

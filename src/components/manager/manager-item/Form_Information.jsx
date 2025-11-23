@@ -66,7 +66,7 @@ export default function Manager_form_information({ onClose }) {
 
       // update key 
       await queryClient.invalidateQueries(["userInfo"]);
-      console.log("Cập nhật thành công");
+      console.log("✅ Cập nhật thành công profile");
       onClose();
     } catch (err) {
       console.error("Lỗi cập nhật:", err);

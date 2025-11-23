@@ -3,11 +3,12 @@ import { faPenToSquare } from "@fortawesome/free-solid-svg-icons";
 import { useState } from "react";
 import Manager_form_information from "./manager-item/Form_Information";
 import useUserInfor from "@/hooks/user/useUserInfor";
-
+import Form_address from "./manager-item/Form_address";
+import Form_change_password from "./manager-item/form_change_password";
 export default function UserInfo() {
   const [showFormUserInfomation, setShowFormUserInfomation] = useState(false);
-  // const [showFormAddress, setShowFormAddress] = useState(false);
-  // const [showFormPassword, setShowFormPassword] = useState(false);
+  const [showFormAddress, setShowFormAddress] = useState(false);
+  const [showFormPassword, setShowFormPassword] = useState(false);
 
   const { data: user, isLoading } = useUserInfor();
 
@@ -30,7 +31,7 @@ export default function UserInfo() {
           </button>
         </div>
 
-        {/*  Nội dùng */}
+        {/*  info user */}
         <div className="grid xl:grid-cols-2 gap-x-8 gap-y-4 text-sm text-gray-700 sm:grid-cols-1">
           <div className="flex justify-between border-b border-gray-200 pb-2">
             <span className="font-medium text-gray-500">Họ và tên:</span>
@@ -70,22 +71,85 @@ export default function UserInfo() {
       <section className="bg-white rounded-2xl shadow-md p-6">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold text-gray-800">Địa chỉ</h2>
-          <button className="flex items-center gap-1 text-red-500 text-sm font-medium hover:underline hover:text-red-600 transition cursor-pointer">
+          <button
+            onClick={() => setShowFormAddress(true)}
+            className="flex items-center gap-1 text-red-500 text-sm font-medium hover:underline hover:text-red-600 transition cursor-pointer">
             <FontAwesomeIcon icon={faPenToSquare} className="text-xs" />
-            <span>Thêm địa chỉ</span>
+            <span>Cập nhật địa chỉ</span>
           </button>
         </div>
+
+        {/*  item address */}
+        <div className="grid xl:grid-cols-2 gap-x-8 gap-y-4 text-sm text-gray-700 sm:grid-cols-1">
+          <div className="flex justify-between border-b border-gray-200 pb-2">
+            <span className="font-medium text-gray-500">Số nhà - tên đường:</span>
+            <span className="font-semibold">{user.userProfile.addressResponse.street || "-"}</span>
+          </div>
+
+          <div className="flex justify-between border-b border-gray-200 pb-2">
+            <span className="font-medium text-gray-500">Xã - Phường:</span>
+            <span className="font-semibold">{user.userProfile.addressResponse.ward || "-"}</span>
+          </div>
+
+          <div className="flex justify-between border-b border-gray-200 pb-2">
+            <span className="font-medium text-gray-500">Quận - Huyện:</span>
+            <span className="font-semibold">{user.userProfile.addressResponse.district || "-"}</span>
+          </div>
+
+          <div className="flex justify-between border-b border-gray-200 pb-2">
+            <span className="font-medium text-gray-500">Tỉnh - Thành Phố:</span>
+            <span className="font-semibold">{user.userProfile.addressResponse.province || "-"}</span>
+          </div>
+
+          <div className="flex justify-between border-b border-gray-200 pb-2">
+            <span className="font-medium text-gray-500">Mã bưu điện:</span>
+            <span className="font-semibold">{user.userProfile.addressResponse.postalCode || "-"}</span>
+          </div>
+
+          <div className="flex justify-between border-b border-gray-200 pb-2">
+            <span className="font-medium text-gray-500">Địa chỉ chi tiết:</span>
+            <span className="font-semibold">{user.userProfile.addressResponse.additionalInfo || "-"}</span>
+          </div>
+        </div>
+        {showFormAddress && <Form_address onClose={() => setShowFormAddress(false)} />}
       </section>
 
       {/* Mật khẩu tài khoản liên kết */}
-      <section className="bg-white rounded-2xl shadow-md p-6">
-        <div className="flex gap-5">
-          <div className="">
-            <h2 className="text-lg font-semibold text-gray-800">Mật khẩu</h2>
+      <section>
+        <div className="flex flex-col gap-4 md:flex-row sm:flex-wrap">
+
+          {/* Cột 1: Mật khẩu */}
+          <div className="flex-1 min-w-[300px] flex flex-col gap-2 bg-white rounded-2xl shadow-md p-6">
+            <div className="flex items-center justify-between border-b border-gray-200 pb-2">
+              <h2 className="text-lg font-semibold text-gray-800">Mật khẩu</h2>
+              <button
+                onClick={() => setShowFormPassword(true)}
+                className="flex items-center gap-1 text-red-500 text-sm font-medium hover:underline hover:text-red-600 transition cursor-pointer">
+                <FontAwesomeIcon icon={faPenToSquare} className="text-xs" />
+                <span>Thay đổi mật khẩu</span>
+              </button>
+            </div>
+            <p className="text-gray-500">Cập nhật lần cuối: 10/11/2025 08:59</p>
           </div>
-          <div>
-            <h2 className="text-lg font-semibold text-gray-800">Tài khoản liên kết </h2>
+
+          {/* Cột 2: Tài khoản liên kết */}
+          <div className="flex-1 min-w-[300px] flex flex-col gap-2 bg-white rounded-2xl shadow-md p-6">
+            <div className="flex items-center justify-between border-b border-gray-200 pb-2">
+              <h2 className="text-lg font-semibold text-gray-800">Tài khoản liên kết</h2>
+              <button className="text-red-500 text-sm hover:underline">Quản lý liên kết</button>
+            </div>
+            <ul className="space-y-1">
+              <li className="flex justify-between">
+                <span>Google</span>
+                <span className="text-green-600">Đã liên kết</span>
+              </li>
+              <li className="flex justify-between">
+                <span>Zalo</span>
+                <span className="text-gray-500">Chưa liên kết</span>
+              </li>
+            </ul>
           </div>
+            {showFormPassword && <Form_change_password onClose={() => setShowFormPassword(false)} />}
         </div>
       </section>
     </div >

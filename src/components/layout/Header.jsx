@@ -38,6 +38,12 @@ export default function Header() {
     }
   }, [])
 
+  // func search 
+  const handleSearch = (query) => {
+    console.log("Đang tìm:", query);
+    // Thực hiện logic tìm kiếm ở đây
+  };
+
   return (
     <header className="w-full shadow-md bg-white sticky top-0 z-50" >
       <div className="max-w-7xl mx-auto px-4 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -57,11 +63,13 @@ export default function Header() {
           <input
             type="text"
             placeholder="Tìm kiếm sản phẩm..."
-            className="flex-1 px-4 py-2 rounded-l-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-300"
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                handleSearch(e.target.value);
+              }
+            }}
+            className="flex-1 px-4 py-2 rounded-md border border-gray-300 bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-300"
           />
-          <button className="bg-blue-600 text-white px-4 py-2 rounded-r-md hover:bg-blue-700 transition">
-            Tìm kiếm
-          </button>
         </div>
 
         {/* Cart + Profile */}

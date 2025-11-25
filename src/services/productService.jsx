@@ -7,10 +7,15 @@ const instance = axios.create({
 
 const productService = {
   getAllProducts: () => instance.get(`/all`),
-  getProductById: (id) => instance.get(`/${id}`),
-  createProduct: (data) => instance.post(``, data),
-  updateProduct: (id, data) => instance.put(`/${id}`, data),
-  deleteProduct: (id) => instance.delete(`/${id}`)
+  getAllProductsByPage: (page, size, sortBy, direction) => instance.get(`/page`, { params: { page, size, sortBy, direction } }),
+  getProductByCategoryName: (categoryName, page, size, sortBy, direction) => instance.get(
+    `/category/by-category-name`,
+    { params: { categoryName, page, size, sortBy, direction } }
+  ),
+  getProductById: (productId) => instance.get(`/product/${productId}`),
+  createProduct: (data) => instance.post(`/add`, data),
+  updateProduct: (productId, data) => instance.put(`/${productId}`, data),
+  deleteProduct: (productId) => instance.delete(`/${productId}`)
 };
 
 export default productService;

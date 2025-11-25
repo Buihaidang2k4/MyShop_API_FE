@@ -1,4 +1,8 @@
 import useImageUrl from "@/hooks/image/useImageUrl";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faShoppingCart } from '@fortawesome/free-solid-svg-icons';
+import { useNavigate } from "react-router-dom";
+
 
 export default function ProductCard({ product }) {
   const {
@@ -12,6 +16,7 @@ export default function ProductCard({ product }) {
   } = product;
 
   const imageUrl = useImageUrl(images);
+  const navigate = useNavigate();
 
   return (
     <div
@@ -64,13 +69,26 @@ export default function ProductCard({ product }) {
           Danh mục: {category?.categoryName || "Không xác định"}
         </span>
 
-        {/* Nút mua ngay */}
-        <button
-          className="mt-2 bg-blue-600 text-white px-4 py-2 rounded-lg 
-                     hover:bg-blue-700 active:scale-105 transition transform duration-150"
-        >
-          Mua ngay
-        </button>
+        <div className="flex flex-row justify-self-start gap-4 items-center">
+          {/* Thêm giỏ hàng */}
+          {/* <button
+            className="mt-2 border border-blue-600 text-blue-600 px-3 py-2 rounded-lg 
+               hover:bg-blue-50 active:scale-105 transition transform duration-150 hover:scale-105"
+          >
+            <FontAwesomeIcon icon={faShoppingCart} size="lg" />
+          </button> */}
+
+          {/* Mua ngay */}
+          <button
+            onClick={() => { navigate(`/product-details?productId=${product.productId}`); }}
+            className="mt-2 bg-blue-600 text-white px-10 py-2 rounded-lg font-semibold
+               hover:bg-blue-700 active:scale-105 transition transform duration-150 hover:scale-105 shadow-md"
+          >
+            Buy
+          </button>
+        </div>
+
+
       </div>
     </div>
   );

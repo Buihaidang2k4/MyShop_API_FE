@@ -1,38 +1,47 @@
+import ReactPaginate from "react-paginate";
 import ProductCard from "./ProductCard";
-import Carousel from "react-multi-carousel";
-import "react-multi-carousel/lib/styles.css";
-import useProducts from "../../hooks/product/useProducts";
+import React from "react";
 
-const responsive = {
-  superLargeDesktop: { breakpoint: { max: 4000, min: 3000 }, items: 6 },
-  desktop: { breakpoint: { max: 3000, min: 1024 }, items: 5 },
-  tablet: { breakpoint: { max: 1024, min: 464 }, items: 3 },
-  mobile: { breakpoint: { max: 464, min: 0 }, items: 1 },
-};
+function ProductList({ products = [], totalPages = 1, page, setPage }) {
 
-export default function ProductList() {
-  const { products, loading, error} = useProducts();
-  
-  if (loading) return <p>Đang tải sản phẩm...</p>;
-  if (error) return <p>Lỗi khi tải sản phẩm</p>;
+  const handlePageChange = ({ selected }) => {
+    setPage(selected);
+  };
 
   return (
-    <>
-      <h2 className="font-bold text-2xl p-5 text-sky-950">
-        Danh sách sản phẩm
+    <div className="p-10">
+      <h2 className="relative text-2xl font-bold mb-8 text-gray-800 text-center">
+        <span className="px-4 bg-white relative z-10">Danh sách sản phẩm</span>
+        <span className="absolute left-0 right-0 top-1/2 h-[3px] 
+      bg-gradient-to-r from-transparent via-sky-400 to-transparent 
+      rounded-full"></span>
       </h2>
 
-      <div className="p-10">
-        {products.length > 0 ? (
-          <Carousel responsive={responsive} infinite autoPlay>
-            {products.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </Carousel>
-        ) : (
-          <p>Đang tải sản phẩm...</p>
-        )}
+
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5 mb-5">
+        {products.map((p) => (
+          <ProductCard key={p.productId} product={p} />
+        ))}
       </div>
-    </>
-  )
+
+      <ReactPaginate
+        previousLabel={"← Trước"}
+        nextLabel={"Tiếp →"}
+        breakLabel={"..."}
+        pageCount={totalPages}
+        onPageChange={handlePageChange}
+        forcePage={page}
+        marginPagesDisplayed={2}
+        pageRangeDisplayed={3}
+        containerClassName={"flex justify-center gap-2 select-none"}
+        pageClassName={"px-3 py-2 border rounded-lg bg-white hover:bg-sky-50 text-sky-800"}
+        activeClassName={"bg-sky-600 text-white border-sky-600"}
+        previousClassName={"px-4 py-2 border rounded-lg bg-white hover:bg-sky-50 text-sky-800"}
+        nextClassName={"px-4 py-2 border rounded-lg bg-white hover:bg-sky-50 text-sky-800"}
+        disabledClassName={"opacity-40 cursor-not-allowed"}
+      />
+    </div>
+  );
 }
+
+export default React.memo(ProductList);

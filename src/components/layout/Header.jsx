@@ -50,7 +50,7 @@ export default function Header() {
         {/* Logo */}
         <div
           className="flex items-center gap-3 cursor-pointer"
-          onClick={() => { isLoggedIn ? navigate("/home-private") : navigate("/") }}
+          onClick={() => { isLoggedIn ? navigate("/home-private") : navigate("/login") }}
         >
           <img src={logo} alt="MyShop Logo" className="h-12 w-auto rounded-xl" />
           <h1 className="text-xl font-extrabold hidden sm:block text-sky-800">
@@ -131,10 +131,7 @@ export default function Header() {
                   </Link>
 
                   <button
-                    onClick={() => {
-                      logout();
-                      navigate("/");
-                    }}
+                    onClick={logout}
                     className="flex items-center gap-3 w-full text-left px-4 py-2 text-sm hover:bg-red-50 hover:text-red-600 transition"
                   >
                     <i className="fa-solid fa-right-from-bracket w-5 text-gray-500" />

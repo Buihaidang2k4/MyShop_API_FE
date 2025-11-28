@@ -1,11 +1,18 @@
-import axios from 'axios';
-const config ={responseType: 'blob'}
-const API_HOST = import.meta.env.VITE_API_HOST;
-const BASE_URL = `${API_HOST}/api/v1/images`;
+import axios from "axios";
+
+const instance = axios.create({
+  baseURL: "/api/v1/images",
+  withCredentials: true,
+});
+
+const blobConfig = { responseType: "blob" };
 
 const imageService = {
-  getImagesByProductId: (productId) => axios.get(`${BASE_URL}/product/${productId}/images`),
-  getImageById: (id) => axios.get(`${BASE_URL}/image/download/${id}`,config),
+  getImagesByProductId: (productId) =>
+    instance.get(`/product/${productId}/images`),
+
+  getImageById: (id) =>
+    instance.get(`/image/download/${id}`, blobConfig),
 };
 
 export default imageService;

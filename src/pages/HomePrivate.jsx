@@ -1,10 +1,11 @@
-import Category from "../components/category/Category";
-import Banner from "../components/Home/Banner";
-import ProductList from "../components/Product/ProductList";
 import useProducts from "../hooks/product/useProducts";
 import { useState } from "react";
 import Loading from "../utils/Loading";
 import Error from "../utils/Error";
+import Banner from "../components/layout/Banner"
+import Category from "../components/layout/Category";
+import ProductList from "../components/product-list/ProductList";
+
 
 export default function HomePrivate() {
     const [page, setPage] = useState(0);
@@ -15,14 +16,14 @@ export default function HomePrivate() {
     const totalPages = data?.data?.data?.totalPages || 1;
 
     if (isLoading) return <Loading />;
-    if (isError) return <Error/>
+    if (isError) return <Error />
 
     return (
         <>
             <Banner />
             <Category />
             <div className="relative">
-                {isFetching &&  <Loading/>}
+                {isFetching && <Loading />}
                 <ProductList
                     products={products}
                     totalPages={totalPages}

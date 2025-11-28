@@ -1,9 +1,7 @@
 import { useState } from "react";
 import { useLocation } from "react-router-dom";
 import useFindProductByCategoryName from "../hooks/product/useFindProductByCategoryName";
-import ProductList from "../components/Product/ProductList";
-import Banner from "../components/Home/Banner";
-import Loading from "../utils/Loading";
+import ProductList from "../components/product-list/ProductList";
 import Error from "../utils/Error";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowUp, faArrowDown, faTags, faClock } from '@fortawesome/free-solid-svg-icons';

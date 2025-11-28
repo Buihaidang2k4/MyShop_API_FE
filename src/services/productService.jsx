@@ -1,5 +1,4 @@
 import axios from 'axios';
-// Dùng proxy giống auth để tránh CORS và giữ same-origin
 const instance = axios.create({
   baseURL: '/api/v1/products',
   withCredentials: true,

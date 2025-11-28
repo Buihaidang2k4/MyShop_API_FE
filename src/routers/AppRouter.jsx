@@ -10,15 +10,15 @@ import Manager_userInfo from '@/components/manager/Manager_userInfo.jsx';
 import Manager_overview from '@/components/manager/Manager_overview.jsx';
 import Manage_purchase_history from '@/components/manager/Manager_purchase_history.jsx';
 import Manage_membership_levels_and_benefits from '@/components/manager/Manager_membership_levels_and_benefits.jsx';
-import SearchPageByCategory from '../pages/SearchPageByCategory.jsx';
-import ProductDetailsWrapper from '../components/Product/ProductDetailsWrapper.jsx';
+import SearchPageByCategory from '@/pages/SearchPageByCategory.jsx';
+import ProductDetailsWrapper from '@/pages/ProductDetailsWrapper.jsx';
 
 export default function AppRouter() {
   return (
     <Routes>
       {/* Layout wrapper */}
       <Route element={<Layout />}>
-        {/* <Route path='/' element={<HomePublic />}/> */}
+        <Route path='/' element={<HomePublic />}/>
 
 
         <Route element={<PrivateRouter />}>

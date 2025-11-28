@@ -1,7 +1,7 @@
 import { useState } from "react";
-import Banner from "../components/Home/Banner";
-import Category from "../components/category/Category";
-import ProductList from "../components/Product/ProductList";
+import Banner from "../components/layout/Banner"
+import Category from "../components/layout/Category";
+import ProductList from "../components/product-list/ProductList";
 import { useNavigate } from "react-router-dom";
 import ConfirmDialog from "@/utils/ConfirmDialog.jsx";
 

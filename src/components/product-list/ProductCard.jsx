@@ -1,6 +1,6 @@
 import useImageUrl from "@/hooks/image/useImageUrl";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faShoppingCart } from '@fortawesome/free-solid-svg-icons';
+
 import { useNavigate } from "react-router-dom";
 
 
@@ -70,14 +70,7 @@ export default function ProductCard({ product }) {
         </span>
 
         <div className="flex flex-row justify-self-start gap-4 items-center">
-          {/* Thêm giỏ hàng */}
-          {/* <button
-            className="mt-2 border border-blue-600 text-blue-600 px-3 py-2 rounded-lg 
-               hover:bg-blue-50 active:scale-105 transition transform duration-150 hover:scale-105"
-          >
-            <FontAwesomeIcon icon={faShoppingCart} size="lg" />
-          </button> */}
-
+         
           {/* Mua ngay */}
           <button
             onClick={() => { navigate(`/product-details?productId=${product.productId}`); }}

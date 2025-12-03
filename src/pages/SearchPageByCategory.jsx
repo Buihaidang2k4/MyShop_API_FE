@@ -2,10 +2,11 @@ import { useState } from "react";
 import { useLocation } from "react-router-dom";
 import useFindProductByCategoryName from "../hooks/product/useFindProductByCategoryName";
 import ProductList from "../components/product-list/ProductList";
+import Loading from "../utils/Loading";
 import Error from "../utils/Error";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowUp, faArrowDown, faTags, faClock } from '@fortawesome/free-solid-svg-icons';
-
+import Banner from "@/components/layout/Banner";
 export default function SearchPageByCategory() {
     const [page, setPage] = useState(0);
     const [sortBy, setSortBy] = useState("");
@@ -16,16 +17,16 @@ export default function SearchPageByCategory() {
 
 
     const { data, isLoading, isError } = useFindProductByCategoryName(
-        categoryName,
+        categoryName ? categoryName : "",
         page,
         10,
         sortBy,
         sortDirection
     );
 
-    if (!categoryName) return <Error message="Category not found" />;
     if (isLoading) return <Loading />;
     if (isError) {
+        console.error(isError);
         return <Error message={isError.message} />;
     }
 

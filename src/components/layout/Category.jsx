@@ -1,18 +1,21 @@
 import useCategory from '@/hooks/category/useCategory';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Loading from '../../utils/Loading';
+
 
 export default function Category() {
   const { categories, loading } = useCategory();
   const [selectedCategory, setSelectedCategory] = useState("all");
   const navigate = useNavigate();
 
-  if (loading) return <p className="text-center py-5">Loading categories...</p>;
 
   const handleCategoryClick = (categoryId, categoryName) => {
     setSelectedCategory(categoryId);
     navigate(`/search-page-by-category?categoryName=${categoryName}`);
   };
+
+  if (loading) return <Loading/>;
 
   return (
     <div className="py-5 bg-white shadow-sm border-b border-gray-300 mt-5">

@@ -9,7 +9,6 @@ export default  function ProductDetailsWrapper() {
     const productId = Number(searchParams.get("productId"));
 
     const { data, isLoading, isError } = useFindByProductId(productId);
-
     if (isLoading) return <Loading/>;
     if (isError) return <Error/>;
 

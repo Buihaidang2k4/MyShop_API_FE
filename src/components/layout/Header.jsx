@@ -5,6 +5,7 @@ import useAuthStore from "@/stores/useAuthStore.jsx";
 import useLogout from "../../hooks/auth/useLogout";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import ConfirmDialog from "@/utils/ConfirmDialog.jsx";
+import { notify } from "../../utils/notify";
 
 export default function Header() {
   const navigate = useNavigate();
@@ -16,26 +17,29 @@ export default function Header() {
 
   // Click avatar
   const handleProfileClick = () => {
-    if (isLoggedIn) {
-      setShowProfileMenu(!showProfileMenu);
-    } else {
-      setShowDialog(true);
-    }
+    if (isLoggedIn) setShowProfileMenu(!showProfileMenu);
+    else setShowDialog(true);
   };
+
+  const handleCartClick = () => {
+    if (isLoggedIn) navigate("/shop-cart");
+    else setShowDialog(true);
+  }
+
+  const handleLogoClick = () => {
+    if (isLoggedIn) navigate("/home-private");
+    else {
+      navigate("/");
+    };
+  }
 
   // close profile khi click bên ngoài
   useEffect(() => {
     const hanldeClickOutside = (event) => {
-      if (menuRef.current && !menuRef.current.contains(event.target)) {
-        setShowProfileMenu(false);
-      }
-
-    }
+      if (menuRef.current && !menuRef.current.contains(event.target)) setShowProfileMenu(false);
+    };
     document.addEventListener("mousedown", hanldeClickOutside);
-
-    return () => {
-      document.removeEventListener("mousedown", hanldeClickOutside);
-    }
+    return () => document.removeEventListener("mousedown", hanldeClickOutside);
   }, [])
 
   // func search 
@@ -45,12 +49,12 @@ export default function Header() {
   };
 
   return (
-    <header className="w-full shadow-md bg-white sticky top-0 z-50" >
+    <header className="w-full shadow-md bg-white sticky top-0 z-100" >
       <div className="max-w-7xl mx-auto px-4 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         {/* Logo */}
         <div
           className="flex items-center gap-3 cursor-pointer"
-          onClick={() => { isLoggedIn ? navigate("/home-private") : navigate("/login") }}
+          onClick={handleLogoClick}
         >
           <img src={logo} alt="MyShop Logo" className="h-12 w-auto rounded-xl" />
           <h1 className="text-xl font-extrabold hidden sm:block text-sky-800">
@@ -74,11 +78,10 @@ export default function Header() {
 
         {/* Cart + Profile */}
         <div className="flex items-center gap-7 relative">
-
           {/* Cart */}
           <div
             className="relative cursor-pointer hover:text-sky-600 transition hover:scale-105"
-            onClick={() => { isLoggedIn ? navigate("/shop-cart") : setShowDialog(true) }}
+            onClick={handleCartClick}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"

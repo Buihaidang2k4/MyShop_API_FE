@@ -1,0 +1,24 @@
+import { useMutation, useQueryClient } from "@tanstack/react-query"
+import cartItemService from "../../services/cartItemService";
+import { notify } from "../../utils/notify";
+
+export default function useAddItemToCart() {
+  const queryClient = useQueryClient();
+
+  return useMutation(
+    {
+      mutationFn: cartItemService.addItemToCart,
+      onSuccess: () => {
+        queryClient.invalidateQueries(['cart'])
+        notify.success("Thêm sản phẩm vào giỏ hàng thành công!");
+      },
+      onError: (error) => {
+        notify.error(error.response?.data?.message || "Failed to add item to cart.");
+        console.error("Add item to cart failed:", error);
+      },
+      onSettled: () => {
+        console.log("Add item to cart mutation settled.");
+      }
+    }
+  )
+}

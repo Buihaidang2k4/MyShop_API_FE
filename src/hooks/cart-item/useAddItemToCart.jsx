@@ -7,6 +7,7 @@ export default function useAddItemToCart() {
 
   return useMutation(
     {
+      mutationKey:["add-cart-item"],
       mutationFn: cartItemService.addItemToCart,
       onSuccess: () => {
         queryClient.invalidateQueries(['cart'])

@@ -9,7 +9,8 @@ export default function useFindCartByProfileId(profileId) {
             queryFn: async () => {
                 const res = await cartService.getCartByProfileId(profileId)
                 return res?.data?.data;
-            }, select: (data) => {
+            },
+            select: (data) => {
                 return {
                     cartId: data.cartId,
                     items: data.items.map((item) => ({

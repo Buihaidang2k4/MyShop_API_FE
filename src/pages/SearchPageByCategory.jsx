@@ -7,6 +7,7 @@ import Error from "../utils/Error";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowUp, faArrowDown, faTags, faClock } from '@fortawesome/free-solid-svg-icons';
 import Banner from "@/components/layout/Banner";
+
 export default function SearchPageByCategory() {
     const [page, setPage] = useState(0);
     const [sortBy, setSortBy] = useState("");
@@ -14,7 +15,6 @@ export default function SearchPageByCategory() {
     const location = useLocation();
     const queryParams = new URLSearchParams(location.search);
     const categoryName = queryParams.get("categoryName");
-
 
     const { data, isLoading, isError } = useFindProductByCategoryName(
         categoryName ? categoryName : "",

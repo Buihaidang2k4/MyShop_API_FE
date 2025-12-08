@@ -6,8 +6,17 @@ import useFindCartByProfileId from '../hooks/cart/useFindCartByProfileId';
 import Loading from '@/utils/Loading';
 import Error from '@/utils/Error';
 import useUserInfor from "@/hooks/user/useUserInfor";
+import { useNavigate } from 'react-router-dom';
+import { notify } from '../utils/notify';
+import { faTrash } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import useRemoveItemFromCart from '../hooks/cart-item/useRemoveCartItemFromCart';
+import ConfirmDialog from "@/utils/ConfirmDialog.jsx";
 
 export default function CartPage() {
+  // navigate
+  const navigate = useNavigate();
+
   const { data: user } = useUserInfor();
   const profileId = user?.userProfile?.profileId;
   // Product pagination  
@@ -22,6 +31,7 @@ export default function CartPage() {
   const [selectItems, setSelectItems] = useState([]);
   console.log("Selected items:", selectItems);
 
+  // check input box
   const toggleCheck = (itemId) => {
     setSelectItems((prev) =>
       prev.includes(itemId)
@@ -35,8 +45,6 @@ export default function CartPage() {
     if (allChecked) setSelectItems([]);
     else cart.items && setSelectItems(cart.items.map((item) => item.id));
   };
-
-
 
   const handleIncrease = (id) => {
     setSelectItems((prev) =>
@@ -52,20 +60,42 @@ export default function CartPage() {
     );
   };
 
-  const handleDeleteSelected = () => {
-    setSelectItems((prev) => prev.filter((item) => !item.checked));
-  };
 
-  // const totalPriceSelect = cartItems
-  //   .filter((item) => item.checked)
-  //   .reduce((sum, item) => sum + item.price * item.quantity, 0);
+  // Click mua hàng
+  const handleClickBuy = () => {
+    navigate('/order', {
+      state: {
+        mode: "cart",
+        product: 20,
+        addressId: 10,
+        profileId: 1
+      }
+    });
+  }
 
 
-  if (cartLoading || loadingListProduct) {
+  // Xóa sản phẩm khỏi giỏ hàng 
+  const { mutate: removeItem, isError: removeItemError, isLoading: removeItemLoading } = useRemoveItemFromCart();
+  // const [showDialog, setShowDialog] = useState(false);
+
+  const hanldeClickRemoveItem = (itemId) => {
+    const cartId = cart?.cartId;
+    const cartItemId = itemId;
+
+    if (!cartId || !cartItemId) {
+      notify.error("Xóa khỏi cart không thành công");
+      return;
+    }
+
+    removeItem({ cartId, cartItemId });
+
+  }
+
+  if (cartLoading || loadingListProduct || removeItemLoading) {
     return <Loading />;
   }
 
-  if (cartError || errorListProduct) {
+  if (cartError || errorListProduct || removeItemError) {
     console.log("Error when fetch cart data", cartError);
     return <Error />;
   }
@@ -122,7 +152,7 @@ export default function CartPage() {
             </div>
 
             {/* Số lượng */}
-            <div className="flex items-center justify-center gap-2 sm:col-span-1 md:col-span-2">
+            <div className="flex items-center justify-center gap-2 sm:col-span-1 md:col-span-2 ">
               <button
                 onClick={() => handleDecrease(item.id)}
                 className="h-8 w-8 bg-gray-100 border rounded-full hover:bg-gray-200"
@@ -147,15 +177,26 @@ export default function CartPage() {
               {formatCurrency(item.price * item.quantity)}
             </div>
 
-            {/* Thao tác */}
+            {/* Thao tác xóa item khỏi giỏ */}
             <div className="text-center sm:col-span-1 md:col-span-1">
               <button
-                onClick={handleDeleteSelected}
+                onClick={() => hanldeClickRemoveItem(item.id)}
                 className="text-red-500 hover:underline"
               >
-                Xóa
+                <FontAwesomeIcon icon={faTrash} size="lg" />
               </button>
             </div>
+
+            {/* xác nhận xóa item */}
+            {/* <ConfirmDialog
+              isOpen={showDialog}
+              onClose={() => setShowDialog(false)}
+              onConfirm={() => handleConfirmRemoveItem}
+              title="Xác nhận xóa"
+              message="Bạn có muốn xóa không ? "
+              confirmText="Xóa"
+              cancelText="Hủy"
+            /> */}
           </div>
         ))}
       </div>
@@ -168,7 +209,9 @@ export default function CartPage() {
             {formatCurrency(cart.totalPrice ? cart.totalPrice : 0)}
           </span>
         </p>
-        <button className="px-6 py-2 text-white bg-red-500 rounded-lg hover:bg-red-600 transition">
+        <button
+          onClick={handleClickBuy}
+          className="px-6 py-2 text-white bg-red-500 rounded-lg hover:bg-red-600 transition">
           Mua hàng
         </button>
       </div>

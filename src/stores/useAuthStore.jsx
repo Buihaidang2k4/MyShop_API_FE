@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import authService from "@/services/authService";
 import userService from "@/services/userService";
-
+import { notify } from "../utils/notify";
 let refreshTimeout = null;
 
 const useAuthStore = create(
@@ -14,19 +14,20 @@ const useAuthStore = create(
             //  Login
             login: async (email, password) => {
                 try {
-                    await authService.login({ email, password });
+                    const resLogin  =  await authService.login({ email, password });
+                    console.log(resLogin);
                     const resInfo = await userService.getMyInfo();
                     const resUser = resInfo.data.data;
                     set({
                         isLoggedIn: true,
                         user: resUser,
                     });
-                    console.info("✅ Đăng nhập thành công");
-                    // bắt đầu theo dỗi khi login thành công
+                    notify.success("Đăng nhập thành công")
                     get().startTokenWatcher();
                     return true;
                 } catch (error) {
                     console.error("❌ Đăng nhập thất bại: ", error);
+                    notify.error("Đăng nhập thất bại vui lòng thử lại !");
                     set({ isLoggedIn: false, user: null });
                     return false;
                 }
@@ -41,6 +42,7 @@ const useAuthStore = create(
                     clearTimeout(refreshTimeout);
                     set({ isLoggedIn: false, user: null });
                     console.log("✅ Đăng xuất thành công");
+                    notify.success("Đăng xuất thành công");
                 }
             },
             //  Check login status
@@ -50,6 +52,7 @@ const useAuthStore = create(
                     if (valid) {
                         set({ isLoggedIn: true });
                         console.log("✅ Token hợp lệ, đã đăng nhập");
+                        notify.info("Chào mừng bạn !")
                         // bắt đầu auto refresh token
                         get().startTokenWatcher();
                     } else {

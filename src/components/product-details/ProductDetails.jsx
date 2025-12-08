@@ -54,7 +54,6 @@ export default function ProductDetails({ product }) {
         category,
     } = product;
 
-    // console.log(inventory?.available)
     //  image
     const [selectedImage, setSelectedImage] = useState(`${logo}`);
     const { data: images, isError: imageError, isLoading: imageLoading } = useFindImageByProductId(product?.productId);
@@ -70,9 +69,11 @@ export default function ProductDetails({ product }) {
     } = dataContainerReview;
 
     // number product
-    const [quantityProduct, setQuantityProduct] = useState(1);
+    const [quantityProduct, setQuantityProduct] = useState(0);
     const handleIncreaseQuantity = () => {
-        setQuantityProduct(quantityProduct + 1);
+        if (quantityProduct < inventory?.available) {
+            setQuantityProduct(quantityProduct + 1);
+        } else notify.info("Sản phẩm đã hết hàng rồi !")
     }
     const handleDecreaseQuantity = () => {
         setQuantityProduct(quantityProduct > 0 ? quantityProduct - 1 : 0);
@@ -124,7 +125,6 @@ export default function ProductDetails({ product }) {
 
     // thêm sản phẩm giỏ hàng 
     const { mutate: addItem, isLoading: loadingAddItem, isError: errorAddItem } = useAddItemToCart();
-
     const handleAddToCart = () => {
         const cartId = user?.userProfile?.cartResponse?.cartId;
         const quantity = quantityProduct;
@@ -141,7 +141,7 @@ export default function ProductDetails({ product }) {
         if (!quantity || quantity <= 0) {
             notify.info("Vui lòng điều chỉnh số lượng sản phẩm");
             return;
-        }
+        } 
 
         addItem({ cartId, productId, quantity });
     };
@@ -154,8 +154,17 @@ export default function ProductDetails({ product }) {
             return;
         }
 
-
-        navigate(`/order?productId=${product?.productId}&quantity=${quantityProduct}`);
+        // chuyển hướng 
+        navigate(`/order`,
+            {
+                state: {
+                    mode: "single",
+                    product: product,
+                    images: images,
+                    productId: product?.productId,
+                    quantity: quantityProduct,
+                }
+            });
     }
 
     if (!product || imageLoading || loadingList || reviewLoading || loadingAddItem || loadingUser) return <Loading />
@@ -263,7 +272,6 @@ export default function ProductDetails({ product }) {
                         >
                             <FontAwesomeIcon icon={faShoppingCart} size="lg" />
                         </button>
-
                         {/* Mua ngay */}
                         <button
                             onClick={handleClickBuyNow}
@@ -292,17 +300,19 @@ export default function ProductDetails({ product }) {
             </div>
 
             {/* review */}
-            <div className="">
-                <h2 className="uppercase p-5 text-2xl">
-                    Đánh giá sản phẩm
-                </h2>
-                {/* comment */}
-                {reviews.length > 0 &&
-                    reviews.map((rv, idx) => (
-                        <Review_detail review={rv} key={idx} />
-                    ))
-                }
-            </div>
+            {reviews.length > 0 && (
+                <div className="">
+                    <h2 className="uppercase p-5 text-2xl">
+                        Đánh giá sản phẩm
+                    </h2>
+                    {/* comment */}
+                    {
+                        reviews.map((rv, idx) => (
+                            <Review_detail review={rv} key={idx} />
+                        ))}
+                </div>
+            )
+            }
         </div>
     );
 }

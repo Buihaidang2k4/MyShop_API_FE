@@ -1,11 +1,6 @@
 import React from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faTimesCircle,
-  faExclamationTriangle,
-} from "@fortawesome/free-solid-svg-icons";
 
 const toastStyles = {
   success: {
@@ -25,7 +20,6 @@ const toastStyles = {
       borderRadius: "8px",
       boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
     },
-    icon: <FontAwesomeIcon icon={faTimesCircle} />,
   },
   info: {
     style: {
@@ -44,7 +38,6 @@ const toastStyles = {
       borderRadius: "8px",
       boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
     },
-    icon: <FontAwesomeIcon icon={faExclamationTriangle} />,
   },
 };
 
@@ -97,5 +90,7 @@ export const notify = {
 
 // Component Provider
 export default function NotifyProvider() {
-  return <ToastContainer newestOnTop={true} />;
+  return <ToastContainer newestOnTop={true}
+    containerStyle={{ marginTop: "60px" }}
+  />;
 }

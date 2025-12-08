@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useNavigate } from "react-router-dom";
 import useAuthStore from "@/stores/useAuthStore.jsx";
 import { notify } from "@/utils/Notify.jsx";
-
+import Button from "@mui/material/Button";
 export default function ProductCard({ product }) {
   const {
     productName,
@@ -30,6 +30,14 @@ export default function ProductCard({ product }) {
       notify.error("Vui lòng đăng nhập để xem chi tiết sản phẩm!");
       return;
     }
+  }
+
+  function formatCurrency(value) {
+    if (value == null) return "";
+    return value.toLocaleString("vi-VN", {
+      style: "currency",
+      currency: "VND",
+    });
   }
 
   return (
@@ -63,17 +71,11 @@ export default function ProductCard({ product }) {
         {/* Giá */}
         <div className="flex items-center gap-2">
           <span className="text-red-600 font-bold">
-            {specialPrice.toLocaleString("vi-VN", {
-              style: "currency",
-              currency: "VND",
-            })}
+            {formatCurrency(specialPrice ? specialPrice : price )}
           </span>
           {discount > 0 && (
             <span className="text-gray-400 line-through text-sm">
-              {price.toLocaleString("vi-VN", {
-                style: "currency",
-                currency: "VND",
-              })}
+              {formatCurrency(price)}
             </span>
           )}
         </div>
@@ -86,13 +88,14 @@ export default function ProductCard({ product }) {
         <div className="flex flex-row justify-self-start gap-4 items-center">
 
           {/* Mua ngay */}
-          <button
+
+          <Button
             onClick={() => handleClickBuy()}
-            className="mt-2 bg-blue-600 text-white px-10 py-2 rounded-lg font-semibold
-               hover:bg-blue-700 active:scale-105 transition transform duration-150 hover:scale-105 shadow-md"
-          >
-            Buy
-          </button>
+            variant="contained"
+            color="error"
+            sx={{ width: 110, height: 40, fontSize: 14 }}
+          >Buy
+          </Button>
         </div>
       </div>
     </div>

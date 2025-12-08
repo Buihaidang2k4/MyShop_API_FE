@@ -16,7 +16,7 @@ const cartItemService = {
                 params: { cartId, productId, quantity },
             }),
     updateItemQuantity: (cartId, cartItemId, quantity) => instance.put(`/cart/${cartId}/cartItem/${cartItemId}/updateItemQuantity/${quantity}`),
-    removeItemFromCart: (cartId, cartItemId) => instance.delete(`/cart/${cartId}/cartItem/${cartItemId}/removeItemFromCart`),
+    removeItemFromCart: ({cartId, cartItemId}) => instance.delete(`/cart/${cartId}/cartItem/${cartItemId}/removeItemFromCart`),
 };
 
 export default cartItemService;

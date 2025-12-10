@@ -6,6 +6,9 @@ import useGetCoupons from "../hooks/coupon/useGetCoupons";
 import Loading from "../utils/Loading";
 import Error from "../utils/Error";
 import VoucherDialog from "../components/OrderPage/VoucherDialog";
+import useUserInfor from "../hooks/user/useUserInfor";
+
+
 function formatCurrency(value) {
     if (value == null) return "";
     return value.toLocaleString("vi-VN", {
@@ -14,6 +17,7 @@ function formatCurrency(value) {
     });
 }
 
+import ListAddressDialog from "@/components/OrderPage/ListAddressDialog";
 export default function OrderPage() {
     const { state } = useLocation();
     const [orderParamsBuyFromCart, setOrderParamsBuyFromCart] = useState({});
@@ -56,7 +60,6 @@ export default function OrderPage() {
     const [onShowVoucherDialog, setShowVoucherDialog] = useState(false)
     const [selectVoucherDialog, setSelectVoucherDialog] = useState(false);
 
-    console.log(selectVoucherDialog)
     // load danh sach ma giam gia
     useEffect(() => {
         if (vouchers) {
@@ -64,17 +67,35 @@ export default function OrderPage() {
         }
     }, [vouchers]);
 
-
-    // ngăn chặn hành động cuộn khi show dialog và nền giữ nguyên 
-    useEffect(() => {
-        if (onShowVoucherDialog) {
-            document.body.classList.add("overflow-hidden");
-        } else {
-            document.body.classList.remove("overflow-hidden");
-        }
-    }, [onShowVoucherDialog]);
+    // Các phần liên quan đến địa chỉ 
+    const { data: user, isError: errorUser, isLoading: loadingUser } = useUserInfor();
+    // const [address, setAddress] = useState(null);
+    const [showAddressDialog, setShowAddressDialog] = useState(false);
+    const [selectAddress, setSelectAddress] = useState(null);
+    const [addressList, setAddressList] = useState(user?.userProfile?.addressResponse);
 
 
+    const address = [
+        {
+            addressId: 1,
+            fullName: "Nguyễn Văn A",
+            phone: "0901234567",
+            shortAddress: "123 Đường Láng, ngõ 12, Quận Đống Đa, Hà Nội",
+            label: "Nhà riêng Hà Nội",
+            isDefault: true,
+        },
+        {
+            addressId: 2,
+            fullName: "Nguyễn Văn A",
+            phone: "0901234567",
+            shortAddress: "123 Đường Láng, ngõ 12, Quận Đống Đa, Hà Nội",
+            label: "Nhà riêng Hà Nội",
+            isDefault: true,
+        },
+
+    ];
+
+    // Check lỗi
     if (vouchersLoading) return <Loading />;
     if (vouchersError) {
         console.log(vouchersError);
@@ -162,9 +183,8 @@ export default function OrderPage() {
                         <input
                             type="text"
                             placeholder="Nhập ghi chú sản phẩm nếu có nhắc nhở..."
-                            className="w-full px-4 py-2 border border-gray-300 rounded-md 
-                            shadow-sm focus:outline-none focus:ring-2 
-                            transition duration-200"
+                            className="w-full px-4 py-2 border-gray-50 rounded-md 
+                            shadow-sm transition duration-200"
                         />
                     </div>
 
@@ -179,32 +199,62 @@ export default function OrderPage() {
                                     setShowVoucherDialog(false)
                                 }} />
                         }
+                        <div className="flex">
+                            {/* Input */}
+                            <input
+                                type="text"
+                                value={selectVoucherDialog?.code ?? ""}
+                                readOnly
+                                placeholder="Chọn mã giảm giá..."
+                                className="flex-1 px-3 py-2 border border-gray-300 rounded-l-lg bg-white focus:outline-none"
+                            />
 
-                        <button
-                            onClick={() => setShowVoucherDialog(true)}
-                            className="px-6 py-2 bg-gradient-to-r from-orange-400 to-orange-500 
-                            text-white font-semibold rounded-lg shadow-md 
-                            hover:from-orange-500 hover:to-orange-600 
-                            focus:outline-none focus:ring-2 focus:ring-orange-300 
-                            transition duration-200"
-                        >
-                            Chọn mã giảm giá
-                        </button>
+                            {/* Button */}
+                            <button
+                                onClick={() => setShowVoucherDialog(true)}
+                                className="px-4 py-2 border border-gray-300 rounded-r-lg bg-white text-gray-700 font-medium hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-200"
+                            >
+                                Mã giảm giá
+                            </button>
+                        </div>
+
 
                     </div>
 
                     {/* Địa chỉ */}
-                    <div className="p-5">
+                    <div className="p-5 border rounded-lg bg-white  relative">
                         <label className="block text-gray-700 font-semibold text-sm mb-2">
-                            Địa chỉ giao hàng
+                            Địa chỉ giao hàng <span className="border-2 text-[10px] border-amber-500 h-2 w-5 px-3 border-solid text-[red]">Mặc định </span>
                         </label>
-                        <textarea
-                            placeholder="Nhập địa chỉ chi tiết..."
-                            className="w-full px-4 py-2 border border-gray-300 rounded-md 
-                            shadow-sm focus:outline-none focus:ring-2 
-                            transition duration-200"
-                            rows={3}
-                        />
+                        <div className="space-y-1 text-sm text-gray-700">
+                            {/* <p className="font-medium">{addressList[0].fullAddress}</p> */}
+                            {/* <p>{address[0].shortAddress}</p>
+                            {address[0].additionalInfo && (
+                                <p className="text-gray-500 italic">{address[0].additionalInfo}</p>
+                            )} */}
+                        </div>
+
+                        {/* Nút chọn địa chỉ khác */}
+                        <div className="mt-4">
+                            <button
+                                onClick={() => setShowAddressDialog(true)}
+                                className="  text-blue-500 hover:scale-105 text-sm font-medium cursor-pointer"
+                            >
+                                Chọn địa chỉ khác
+                            </button>
+                        </div>
+                        {/* show list Address */}
+                        {showAddressDialog &&
+                            <ListAddressDialog
+                                addresses={addressList}
+                                open={showAddressDialog}
+                                onClose={() => (setShowAddressDialog(false))}
+                                onSelect={(address) => {
+                                    setSelectAddress(address);
+                                    setShowAddressDialog(false)
+                                }}
+                            />
+                        }
                     </div>
 
                     {/* Thanh toán */}

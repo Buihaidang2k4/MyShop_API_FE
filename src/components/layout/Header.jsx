@@ -49,7 +49,7 @@ export default function Header() {
   };
 
   return (
-    <header className="w-full shadow-md bg-white sticky top-0 z-100" >
+    <header className="w-full shadow-md bg-white sticky top-0 z-49" >
       <div className="max-w-7xl mx-auto px-4 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         {/* Logo */}
         <div

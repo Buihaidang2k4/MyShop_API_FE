@@ -25,6 +25,7 @@ export default function AppRouter() {
         <Route element={<Layout />}>
           <Route path='/' element={<HomePublic />} />
 
+        
 
           <Route element={<PrivateRouter />}>
             <Route path="home-private" element={<HomePrivate />} />

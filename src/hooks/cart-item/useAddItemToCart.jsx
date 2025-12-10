@@ -9,17 +9,17 @@ export default function useAddItemToCart() {
     {
       mutationKey:["add-cart-item"],
       mutationFn: cartItemService.addItemToCart,
+
       onSuccess: () => {
         queryClient.invalidateQueries(['cart'])
         notify.success("Thêm sản phẩm vào giỏ hàng thành công!");
       },
+
       onError: (error) => {
         notify.error(error.response?.data?.message || "Failed to add item to cart.");
         console.error("Add item to cart failed:", error);
-      },
-      onSettled: () => {
-        console.log("Add item to cart mutation settled.");
       }
+   
     }
   )
 }

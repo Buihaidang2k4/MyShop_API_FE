@@ -26,6 +26,7 @@ export default function ProductDetails({ product }) {
     const navigate = useNavigate();
     // Thông tin user
     const { data: user, isError: errorUser, isLoading: loadingUser } = useUserInfor();
+
     // Danh sách sản phẩm liên quan 
     const [page, setPage] = useState(0);
     const { data, isError: errorList, isLoading: loadingList } = useProducts(page, 5, "productId", "asc");

@@ -5,93 +5,111 @@ import userService from "@/services/userService";
 import { notify } from "../utils/notify";
 let refreshTimeout = null;
 
+const parseExpToMs = (exp) => {
+    if (!exp) return null;
+
+    // number → unix timestamp (seconds)
+    if (typeof exp === "number") {
+        return exp * 1000;
+    }
+
+    // string number → "1736676000"
+    if (!isNaN(Number(exp))) {
+        return Number(exp) * 1000;
+    }
+
+    // ISO string → "2025-01-12T10:00:00Z"
+    const parsed = Date.parse(exp);
+    return isNaN(parsed) ? null : parsed;
+};
+
 const useAuthStore = create(
     persist(
         (set, get) => ({
-            isLoggedIn: false,
-            loading: true,
             user: null,
-            //  Login
+            role: null,
+            loading: false,
+            isLoggedIn: false,
+            exp: null,
+
+            //  ======= LOGIN ==========
             login: async (email, password) => {
+                set({ loading: true });
                 try {
-                    const resLogin  =  await authService.login({ email, password });
-                    console.log(resLogin);
+                    await authService.login({ email, password });
+
                     const resInfo = await userService.getMyInfo();
-                    const resUser = resInfo.data.data;
+                    const user = resInfo.data.data;
+                    const role = user.roles[0].roleName;
+
+                    const { exp } = await authService.verifyToken();
+                    const expMs = parseExpToMs(exp);
+                    if (!expMs) {
+                        console.error("Invalid token exp format:", exp);
+                        return;
+                    }
+
+
                     set({
+                        user,
+                        role,
+                        loading: false,
                         isLoggedIn: true,
-                        user: resUser,
+                        exp: expMs,
                     });
-                    notify.success("Đăng nhập thành công")
+
                     get().startTokenWatcher();
-                    return true;
+                    notify.success("Đăng nhập thành công")
+
+                    return { success: true, role };
                 } catch (error) {
+                    set({
+                        user: null,
+                        loading: false,
+                        role: null,
+                        exp: null,
+                        isLoggedIn: false,
+                    });
+
                     console.error("❌ Đăng nhập thất bại: ", error);
                     notify.error("Đăng nhập thất bại vui lòng thử lại !");
-                    set({ isLoggedIn: false, user: null });
-                    return false;
+
+                    return { success: false };
                 }
             },
-            // Logout
+
+            // =========== LOGOUT ================
             logout: async () => {
-                try {
-                    await authService.logout();
-                } catch (error) {
-                    console.error("❌ Đăng xuất thất bại: ", error);
-                } finally {
-                    clearTimeout(refreshTimeout);
-                    set({ isLoggedIn: false, user: null });
-                    console.log("✅ Đăng xuất thành công");
-                    notify.success("Đăng xuất thành công");
-                }
+                clearTimeout(refreshTimeout);
+                await authService.logout();
+                set({ isLoggedIn: false, user: null, role: null });
+                console.log("Đăng xuất thành công");
             },
-            //  Check login status
-            checkLogin: async () => {
-                try {
-                    const { valid } = await authService.verifyToken();
-                    if (valid) {
-                        set({ isLoggedIn: true });
-                        console.log("✅ Token hợp lệ, đã đăng nhập");
-                        notify.info("Chào mừng bạn !")
-                        // bắt đầu auto refresh token
-                        get().startTokenWatcher();
-                    } else {
-                        try {
-                            await authService.refresh_token();
-                            const recheck = await authService.verifyToken();
-                            set({ isLoggedIn: recheck.valid });
-                            if( recheck.valid ) get.startTokenWatcher();
-                            console.log("✅ Đã refresh token thành công");
-                        } catch (error) {
-                            set({ isLoggedIn: false });
-                            console.error("❌ Token không hợp lệ sau refresh token: ", error);
-                        }
-                    }
-                } catch (error) {
-                    set({ isLoggedIn: false });
-                    console.error("❌ Error verify token: ", error);
-                } finally {
-                    set({ loading: false });
-                }
-            },
-            // auto refresh token
+
+            // ============== TOKEN WATCHER ===============
             startTokenWatcher: async () => {
                 clearTimeout(refreshTimeout);
+
                 try {
                     const { valid, exp } = await authService.verifyToken();
                     if (!valid) return;
 
-                    const expTime = isNaN(exp) ? new Date(exp).getTime() : exp * 1000;
-                    const now = Date.now();
-                    const timeLeft = expTime - now;
+                    const expTime = parseExpToMs(exp);
+                    if (!expTime) {
+                        console.error("Invalid token exp format:", exp);
+                        return;
+                    }
+
+                    const timeLeft = expTime - Date.now();
+
+
 
                     if (timeLeft <= 0) {
-                        console.warn("Token hết hạn, refresh ngay lập tức");
                         await authService.refresh_token();
                         return get().startTokenWatcher();
                     }
 
-                    const refreshBefore = 60 * 1000; // 1 minute
+                    const refreshBefore = 60_000;
                     const refreshIn = Math.max(timeLeft - refreshBefore, 0);
 
                     console.log(
@@ -101,15 +119,13 @@ const useAuthStore = create(
 
                     refreshTimeout = setTimeout(async () => {
                         try {
-                            const refreshRes = await authService.refresh_token();
-                            console.info("Token refreshed:", refreshRes.data.message);
-                            // gọi lại cho token mới 
+                            await authService.refresh_token();
                             get().startTokenWatcher();
-                        } catch (error) {
-                            console.error("Error refreshing token:", error);
+                        } catch {
                             set({ isLoggedIn: false });
                         }
                     }, refreshIn);
+
                 } catch (error) {
                     console.error("Lỗi khi theo dõi token:", error);
                 }

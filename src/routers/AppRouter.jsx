@@ -15,7 +15,16 @@ import ProductDetailsWrapper from '@/pages/ProductDetailsWrapper.jsx';
 import CartPage from '@/pages/CartPage.jsx';
 import { ToastContainer } from "react-toastify";
 import OrderPage from '../pages/OrderPage.jsx';
+import Unauthorized from '../pages/Unauthorized.jsx'
+import Admin_dashboard_page from '../pages/Admin_Dashoard_Page.jsx';
+import Admin_Dashoard_Page from '../pages/Admin_Dashoard_Page.jsx';
+import ForgotPasswordPage from '../pages/Forgot_password_Page.jsx';
+import Forgot_password_otp_page from '../pages/Forgot_password_otp_page.jsx';
 
+const ROLES = {
+  USER: 'USER',
+  ADMIN: 'ADMIN',
+};
 
 export default function AppRouter() {
   return (
@@ -24,16 +33,16 @@ export default function AppRouter() {
         {/* Layout wrapper */}
         <Route element={<Layout />}>
           <Route path='/' element={<HomePublic />} />
+          <Route path="search-page-by-category" element={<SearchPageByCategory />} />
+          <Route path="product-details" element={<ProductDetailsWrapper />} />
+          <Route path="unauthorized" element={<Unauthorized />} />
 
-        
 
-          <Route element={<PrivateRouter />}>
+          {/* USER */}
+          <Route element={<PrivateRouter allowedRoles={[ROLES.USER]} />}>
             <Route path="home-private" element={<HomePrivate />} />
-            <Route path="search-page-by-category" element={<SearchPageByCategory />} />
-            <Route path="product-details" element={<ProductDetailsWrapper />} />
             <Route path="shop-cart" element={<CartPage />} />
             <Route path="order" element={<OrderPage />} />
-
 
             <Route path="manager" element={<Manager />}>
               <Route path="manager-userinfo" element={<Manager_userInfo />} />
@@ -44,9 +53,20 @@ export default function AppRouter() {
           </Route>
         </Route>
 
+        {/* ADMIN */}
+        <Route element={<PrivateRouter allowedRoles={[ROLES.ADMIN]} />}>
+          <Route path="/admin" element={<Admin_Dashoard_Page />} >
+            <Route index element={<Navigate to="dashboard" replace />} />
+            <Route path="dashboard" element={<Admin_dashboard_page />} />
+          </Route>
+        </Route>
+
         {/* Auth Pages */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/forgot-password-otp" element={<Forgot_password_otp_page />} />
+
 
         {/* Catch all: Redirect unknown routes */}
         <Route path="*" element={<Navigate to="/" replace />} />

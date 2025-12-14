@@ -1,12 +1,8 @@
-import axios from 'axios';
-const instance = axios.create({
-    baseURL: '/api/v1/coupons',
-    withCredentials: true,
-});
+import apiBase from "./apiBase";
 
 const couponService = {
-    getCoupons: () => instance.get(`/coupon-available`),
-    createCoupon: ({data}) => instance.get(`/api/v1/coupons/coupon/create`,data),
+    getCoupons: () => apiBase.get(`/coupons/coupon-available`),
+    createCoupon: ({data}) => apiBase.get(`/coupons/api/v1/coupons/coupon/create`,data),
 };
 
 export default couponService;

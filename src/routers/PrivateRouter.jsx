@@ -1,10 +1,18 @@
 import { Navigate, Outlet } from 'react-router-dom';
 import useAuthStore from '@/stores/useAuthStore';
 
-export default function PrivateRouter() {
-  const { isLoggedIn, loading } = useAuthStore();
+export default function PrivateRouter({ allowedRoles = [] }) {
+  const { isLoggedIn, loading, role } = useAuthStore();
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) return null;
 
-  return isLoggedIn ? <Outlet />: <Navigate to="/login" replace />;
+  if (!isLoggedIn) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (allowedRoles.length && !allowedRoles.includes(role)) {
+    return <Navigate to="/unauthorized" replace />;
+  }
+
+  return <Outlet />;
 }

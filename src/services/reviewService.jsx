@@ -1,11 +1,8 @@
-import axios from 'axios';
-const instance = axios.create({
-    baseURL: '/api/v1/reviews',
-    withCredentials: true,
-});
+import apiBase from "./apiBase";
+
 const reviewService = {
-    getReviewsByProductId: (productId, { page, size, sortBy, direction }) => instance.get(`/product/${productId}`, { params: { page, size, sortBy, direction } }),
-    createProduct: (data, { profileId, orderId, productId }) => instance.post(`/create-review`,
+    getReviewsByProductId: (productId, { page, size, sortBy, direction }) => apiBase.get(`/reviews/product/${productId}`, { params: { page, size, sortBy, direction } }),
+    createProduct: (data, { profileId, orderId, productId }) => apiBase.post(`/reviews/create-review`,
         data, { params: { productId, orderId, profileId } }),
 };
 

@@ -22,7 +22,7 @@ export default function useLogout() {
       try {
         logout();
         Swal.fire("Đăng xuất thành công", "", "success");
-        navigate("/");
+        navigate("/login");
       } catch (error) {
         console.error("Logout error:", error);
         Swal.fire("Lỗi", "Không thể đăng xuất. Vui lòng thử lại.", "error");

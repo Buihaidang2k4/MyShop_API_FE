@@ -3,46 +3,47 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Loading from '../../utils/Loading';
 
-
 export default function Category() {
   const { categories, loading } = useCategory();
   const [selectedCategory, setSelectedCategory] = useState("all");
   const navigate = useNavigate();
 
-
-  const handleCategoryClick = (categoryId, categoryName) => {
-    setSelectedCategory(categoryId);
-    navigate(`/search-page-by-category?categoryName=${categoryName}`);
+  const handleCategoryClick = (id, name) => {
+    setSelectedCategory(id);
+    navigate(id === "all" ? '/search-page-by-category' : `/search-page-by-category?categoryName=${name}`);
   };
 
-  if (loading) return <Loading/>;
+  if (loading) return <Loading />;
 
   return (
-    <div className="py-5 bg-white shadow-sm border-b border-gray-300 mt-5">
-      <div className="flex items-center justify-start md:justify-center gap-3 
-                      px-4 overflow-x-auto scrollbar-hide pb-2">
-        <button className={`relative whitespace-nowrap px-6 py-2 rounded-full text-sm font-medium transition-all duration-300 shadow-sm`}>
-          All
-        </button>
-
-        {categories.map((item) => (
-          <button
-            key={item.categoryId}
-            onClick={() => handleCategoryClick(item.categoryId, item.categoryName)}
-            className={`relative whitespace-nowrap px-6 py-2 rounded-full 
-                        text-sm font-medium transition-all duration-300 shadow-sm
+    <div className="w-full bg-white border-b border-gray-200 mt-5">
+      <div className="max-w-7xl mx-auto px-4">
+        <div className="flex items-center gap-6 overflow-x-auto scrollbar-hide">
+          
+          {/* Helper function để render nút tránh lặp code */}
+          {[ { categoryId: 'all', categoryName: 'All' }, ...categories ].map((item) => (
+            <button
+              key={item.categoryId}
+              onClick={() => handleCategoryClick(item.categoryId, item.categoryName)}
+              className={`
+                relative whitespace-nowrap py-4 text-sm font-medium transition-colors duration-200
                 ${selectedCategory === item.categoryId
-                ? "bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-md scale-105"
-                : "bg-gray-100 text-gray-700 hover:bg-gray-200 hover:scale-105"
-              }`}
-          >
-            {item.categoryName}
+                  ? "text-blue-600"
+                  : "text-gray-500 hover:text-gray-800"
+                }
+              `}
+            >
+              {item.categoryName}
+              
+              {/* Thanh gạch chân animation */}
+              <span className={`
+                absolute bottom-0 left-0 w-full h-0.5 bg-blue-600 rounded-t-md transition-transform duration-300 origin-center
+                ${selectedCategory === item.categoryId ? "scale-x-100" : "scale-x-0"}
+              `}></span>
+            </button>
+          ))}
 
-            {selectedCategory === item.categoryId && (
-              <span className="absolute inset-x-0 bottom-0 h-1 bg-blue-300 rounded-full"></span>
-            )}
-          </button>
-        ))}
+        </div>
       </div>
     </div>
   );

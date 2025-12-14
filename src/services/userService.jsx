@@ -1,22 +1,13 @@
-import axios from "axios";
-// Dùng proxy của Vite trong môi trường dev để đảm bảo same-origin và gửi cookie
-const BASE_URL = `/api/v1/users`;
-
-const instance = axios.create(
-    {
-        baseURL: BASE_URL,
-        withCredentials: true,
-    }
-);
+import apiBase from "./apiBase";
 
 const userService = {
-    getAll: () => instance.get(`/all`),
-    getUsersById: (userId) => instance.get(`/${userId}`),
-    getMyInfo: () => instance.get(`/myInfo`),
-    createUser: (data) => instance.post(`/add`, data, {withCredentials: false}),
-    updateUser: (userId, data) => instance.put(`/${userId}`, data),
-    changePassword: (userId, data) => instance.put(`/${userId}/change-password`, data),
-    deleteUser: (userId) => instance.delete(`/${userId}`),
+    getAll: () => apiBase.get(`/users/all`),
+    getUsersById: (userId) => apiBase.get(`/users/${userId}`),
+    getMyInfo: () => apiBase.get(`/users/myInfo`),
+    createUser: (data) => apiBase.post(`/users/add`, data, {withCredentials: false}),
+    updateUser: (userId, data) => apiBase.put(`/users/${userId}`, data),
+    changePassword: (userId, data) => apiBase.put(`/users/${userId}/change-password`, data),
+    deleteUser: (userId) => apiBase.delete(`/users/${userId}`),
 };
 
 export default userService;

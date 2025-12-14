@@ -1,27 +1,19 @@
-import axios from "axios";
-const BASE_URL = `/api/v1/auth`;
-
-const instance = axios.create(
-  {
-    baseURL: BASE_URL,
-    withCredentials: true, 
-  }
-);
+import apiBase from "./apiBase";
 
 const authService = {
-  login: (data) => instance.post(`/login`, data),
-  loginGoogle: (token) => instance.post(`/google`, { token },
+  login: (data) => apiBase.post(`/auth/login`, data),
+  loginGoogle: (token) => apiBase.post(`/auth/google`, { token },
     { headers: { 'Content-Type': 'application/json' } }
   ),
-  register: (data) => instance.post(`/register`, data),
-  forgotPassword:(data) => instance.post(`/forgot-password`, data),
-  resetPassword: (data) => instance.put(`/reset-password`, data), // otp 
-  logout: () => instance.post(`/logout`),
-  refresh_token: () => instance.post(`/refresh`),
-  introspect: () => instance.post(`/introspect`),
+  register: (data) => apiBase.post(`/auth/register`, data),
+  forgotPassword:(data) => apiBase.post(`/auth/forgot-password`, data),
+  resetPassword: (data) => apiBase.put(`/auth/reset-password`, data), // otp 
+  logout: () => apiBase.post(`/auth/logout`),
+  refresh_token: () => apiBase.post(`/auth/refresh`),
+  introspect: () => apiBase.post(`/auth/introspect`),
   verifyToken: async () => {
     try {
-      const res = await instance.post(`/introspect`);
+      const res = await apiBase.post(`/auth/introspect`);
       if (res.status === 200) {
         return res.data.data; 
       }

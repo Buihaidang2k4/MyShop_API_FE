@@ -9,10 +9,10 @@ export default function useUpdateAddress() {
     return useMutation(
         {
             mutationKey: ["update-address"],
-            mutationFn: addressService.updateAddress(),
+            mutationFn: (payload) => addressService.updateAddress(payload),
 
             onSuccess: () => {
-                queryClient.invalidateQueries(["address"]);
+                queryClient.invalidateQueries({ queryKey: ["address"] });
                 notify.success("Cập nhật địa chỉ thành công ");
             }
             , onError: (err) => {

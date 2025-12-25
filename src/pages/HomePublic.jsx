@@ -1,12 +1,7 @@
 import { useState } from "react";
-import Banner from "../components/layout/Banner"
-import Category from "../components/layout/Category";
 import ProductList from "../components/product-list/ProductList";
-import { useNavigate } from "react-router-dom";
-import ConfirmDialog from "@/utils/ConfirmDialog.jsx";
 import useProducts from "@/hooks/product/useProducts.jsx";
-import useAuthStore from "@/stores/useAuthStore.jsx";
-import notify from "@/utils/notify.jsx";
+import Category from "../components/Home/Category";
 
 export default function HomePublic() {
   const [page, setPage] = useState(0);
@@ -16,7 +11,6 @@ export default function HomePublic() {
 
   return (
     <>
-      <Banner />
       <Category />
       <div
         className="relative">

@@ -16,7 +16,7 @@ export default function useAddItemToCart() {
       },
 
       onError: (error) => {
-        notify.error(error.response?.data?.message || "Failed to add item to cart.");
+        notify.error("Sản phẩm đã hết hàng ! ");
         console.error("Add item to cart failed:", error);
       }
    

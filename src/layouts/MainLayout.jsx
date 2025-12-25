@@ -1,8 +1,8 @@
-import Header from "../layout/Header";
-import Footer from "../layout/Footer";
+import Header from "./HeaderLayout";
+import Footer from "./FooterLayout";
 import { Outlet } from "react-router-dom";
 
-export default function Layout() {
+export default function MainLayout() {
     return (
         <>
             <div className="flex flex-col min-h-screen">

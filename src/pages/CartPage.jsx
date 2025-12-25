@@ -281,7 +281,7 @@ export default function CartPage() {
                             {formatCurrency(totalSelectedPrice)}
                         </span>
                     </div>
-                    <span className="text-xs text-green-600">Tiết kiệm: {formatCurrency(0)}đ</span>
+                    <span className="text-xs text-green-600">Tiết kiệm: {formatCurrency(0)}</span>
                 </div>
                 
                 <button

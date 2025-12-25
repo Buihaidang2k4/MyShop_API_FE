@@ -8,7 +8,7 @@ export default function useCreateAddress() {
     return useMutation(
         {
             mutationKey: ["create-address"],
-            mutationFn: addressService.createAddress(),
+            mutationFn: (payload) =>  addressService.createAddress(payload),
             onSuccess: () => {
                 queryClient.invalidateQueries(["address"])
                 notify.success("Thêm địa chỉ mới thành công")

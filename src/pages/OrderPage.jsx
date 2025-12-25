@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { data, useLocation } from "react-router-dom";
 import { ORDER_MODE_FROM_CART, ORDER_MODE_FROM_SINGLE } from "../utils/Constant";
 import { notify } from "../utils/notify";
 import useGetCoupons from "../hooks/coupon/useGetCoupons";
@@ -7,17 +7,10 @@ import Loading from "../utils/Loading";
 import Error from "../utils/Error";
 import VoucherDialog from "../components/OrderPage/VoucherDialog";
 import useUserInfor from "../hooks/user/useUserInfor";
-
-
-function formatCurrency(value) {
-    if (value == null) return "";
-    return value.toLocaleString("vi-VN", {
-        style: "currency",
-        currency: "VND",
-    });
-}
-
+import { formatCurrency } from "../components/product-details/sample/FomartProduct";
+import GetAddressDefault from "../components/OrderPage/GetAddressDefault";
 import ListAddressDialog from "@/components/OrderPage/ListAddressDialog";
+import useGetAddressByProfileId from "../hooks/address/useGetAddressByProfileId";
 export default function OrderPage() {
     const { state } = useLocation();
     const [orderParamsBuyFromCart, setOrderParamsBuyFromCart] = useState({});
@@ -59,6 +52,19 @@ export default function OrderPage() {
     const [voucherList, setVoucherList] = useState(null);
     const [onShowVoucherDialog, setShowVoucherDialog] = useState(false)
     const [selectVoucherDialog, setSelectVoucherDialog] = useState(false);
+    // Các phần liên quan đến địa chỉ 
+    const { data: user, isError: errorUser, isLoading: loadingUser } = useUserInfor();
+    const [showAddressDialog, setShowAddressDialog] = useState(false);
+    const [selectAddress, setSelectAddress] = useState(null);
+    const { data: addressData } = useGetAddressByProfileId(user?.userProfile?.profileId);
+    const [addressList, setAddressList] = useState([]);
+    
+    // load addresslist
+    useEffect(() => {
+        if (addressData) {
+            setAddressList(addressData?.data?.data);
+        }
+    }, [addressData]);
 
     // load danh sach ma giam gia
     useEffect(() => {
@@ -67,37 +73,19 @@ export default function OrderPage() {
         }
     }, [vouchers]);
 
-    // Các phần liên quan đến địa chỉ 
-    const { data: user, isError: errorUser, isLoading: loadingUser } = useUserInfor();
-    // const [address, setAddress] = useState(null);
-    const [showAddressDialog, setShowAddressDialog] = useState(false);
-    const [selectAddress, setSelectAddress] = useState(null);
-    const [addressList, setAddressList] = useState(user?.userProfile?.addressResponse);
+    // load user
+    useEffect(() => {
+        if (user?.userProfile?.addressResponse) {
+            setAddressList(user.userProfile.addressResponse);
+        }
+    }, [user]);
+
+    // address
+    const addressDefaultOrSelect = selectAddress ? selectAddress : GetAddressDefault(addressList);
 
 
-    const address = [
-        {
-            addressId: 1,
-            fullName: "Nguyễn Văn A",
-            phone: "0901234567",
-            shortAddress: "123 Đường Láng, ngõ 12, Quận Đống Đa, Hà Nội",
-            label: "Nhà riêng Hà Nội",
-            isDefault: true,
-        },
-        {
-            addressId: 2,
-            fullName: "Nguyễn Văn A",
-            phone: "0901234567",
-            shortAddress: "123 Đường Láng, ngõ 12, Quận Đống Đa, Hà Nội",
-            label: "Nhà riêng Hà Nội",
-            isDefault: true,
-        },
-
-    ];
-
-    // Check lỗi
-    if (vouchersLoading) return <Loading />;
-    if (vouchersError) {
+    if (vouchersLoading || loadingUser) return <Loading />;
+    if (vouchersError || errorUser) {
         console.log(vouchersError);
         return <Error />
     }
@@ -227,11 +215,18 @@ export default function OrderPage() {
                             Địa chỉ giao hàng <span className="border-2 text-[10px] border-amber-500 h-2 w-5 px-3 border-solid text-[red]">Mặc định </span>
                         </label>
                         <div className="space-y-1 text-sm text-gray-700">
-                            {/* <p className="font-medium">{addressList[0].fullAddress}</p> */}
-                            {/* <p>{address[0].shortAddress}</p>
-                            {address[0].additionalInfo && (
-                                <p className="text-gray-500 italic">{address[0].additionalInfo}</p>
-                            )} */}
+                            {addressDefaultOrSelect && (
+                                <>
+                                    <p className="font-medium">{addressDefaultOrSelect.fullAddress}</p>
+                                    <p>{addressDefaultOrSelect.shortAddress}</p>
+
+                                    {addressDefaultOrSelect.additionalInfo && (
+                                        <p className="text-gray-500 italic">
+                                            {addressDefaultOrSelect.additionalInfo}
+                                        </p>
+                                    )}
+                                </>
+                            )}
                         </div>
 
                         {/* Nút chọn địa chỉ khác */}
@@ -247,6 +242,7 @@ export default function OrderPage() {
                         {showAddressDialog &&
                             <ListAddressDialog
                                 addresses={addressList}
+                                selectedAddress={selectAddress}
                                 open={showAddressDialog}
                                 onClose={() => (setShowAddressDialog(false))}
                                 onSelect={(address) => {

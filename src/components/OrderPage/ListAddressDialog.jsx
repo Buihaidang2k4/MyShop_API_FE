@@ -1,14 +1,26 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Form_address from "../manager/manager-item/Form_address";
+import { ADD_ADDRESS_ACTION, UPDATE_ADDRESS_ACTION } from "../../utils/Constant"
 
-export default function ListAddressDialog({ open, onClose, addresses = [] }) {
+
+export default function ListAddressDialog({
+    open,
+    onClose,
+    addresses = [],
+    selectedAddress,
+    onSelect
+}) {
     const [selectedAddressId, setSelectedAddressId] = useState(null);
     const [showFormUpdateAddress, setShowFormUpdateAddress] = useState(false);
     const [showFromAddNewAddress, setShowFromAddNewAddress] = useState(false);
     const [selectedAddressUpdate, setSelectedAddressUpdate] = useState([]);
 
     if (!open) return null;
-
+    useEffect(() => {
+        if (selectedAddress?.addressId) {
+            setSelectedAddressId(selectedAddress.addressId);
+        }
+    }, [selectedAddress]);
     //  overlay 
     const handleOverlayClick = (e) => {
         if (e.target.id === "overlay") {
@@ -18,10 +30,10 @@ export default function ListAddressDialog({ open, onClose, addresses = [] }) {
 
     // Hàm mở form cập nhật
     const hanldeClickUpdateAddress = (address) => {
+        setSelectedAddressId(address.addressId);
         setShowFormUpdateAddress(true);
         setSelectedAddressUpdate(address);
     }
-
 
     // Hàm mở form thêm mới 
     const hanldeClickNewAddress = () => {
@@ -32,14 +44,20 @@ export default function ListAddressDialog({ open, onClose, addresses = [] }) {
 
 
     // click xác nhận chọn địa chỉ 
-    const handleCofirmAddress = () => {
-            
-    }
+    const handleConfirmAddress = () => {
+        const selected = addresses.find(addr => addr.addressId === selectedAddressId);
+        if (selected) {
+            onSelect(selected);
+            onClose();
+        } else { alert("Bạn chưa chọn địa chỉ nào"); }
+    };
+
 
     return (
         <div
             id="overlay"
             onClick={handleOverlayClick}
+
             className="fixed bg-opacity-40 flex justify-end inset-0 backdrop-blur-sm z-50">
 
             <div className="bg-white rounded-lg shadow-lg w-full max-w-md p-6 overflow-y-scroll">
@@ -69,9 +87,9 @@ export default function ListAddressDialog({ open, onClose, addresses = [] }) {
                                 />
                                 <div>
                                     <p className="font-medium">
-                                        {addr.label + " "}
+                                        {addr.type + " "}
                                         {addr.isDefault && (
-                                            <span className="text-xs text-blue-600 font-medium">
+                                            <span className="text-xs text-red-500 border-dotted border p-[2px] font-medium">
                                                 Mặc định
                                             </span>
                                         )}
@@ -88,25 +106,26 @@ export default function ListAddressDialog({ open, onClose, addresses = [] }) {
                                 </div>
 
                             </label>
-                            {/* show form update */}
-                            {showFormUpdateAddress &&
-                                <Form_address
-                                    mode="update"
-                                    addresses={null}
-                                    onClose={() => setShowFromAddNewAddress(false)}
-                                />
-                            }
 
-                            {/* show form add new address */}
-                            {showFromAddNewAddress &&
-                                <Form_address
-                                    mode="add"
-                                    addresses={addresses}
-                                    onClose={() => setShowFromAddNewAddress(false)}
-                                />
-                            }
                         </React.Fragment>
                     ))}
+                    {/* show form update */}
+                    {showFormUpdateAddress &&
+                        <Form_address
+                            mode={UPDATE_ADDRESS_ACTION}
+                            address={selectedAddressUpdate}
+                            onClose={() => setShowFormUpdateAddress(false)}
+                        />
+                    }
+
+                    {/* show form add new address */}
+                    {showFromAddNewAddress &&
+                        <Form_address
+                            mode={ADD_ADDRESS_ACTION}
+                            address={null}
+                            onClose={() => setShowFromAddNewAddress(false)}
+                        />
+                    }
                 </div>
 
                 <div className="mt-6 flex justify-between">
@@ -117,10 +136,8 @@ export default function ListAddressDialog({ open, onClose, addresses = [] }) {
                         + Thêm địa chỉ mới
                     </button>
                     <button
+                        onClick={() => handleConfirmAddress()}
                         className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-                        onClick={() =>
-                            alert(`Xác nhận địa chỉ ID: ${selectedAddressId || "chưa chọn"}`)
-                        }
                     >
                         Xác nhận địa chỉ
                     </button>

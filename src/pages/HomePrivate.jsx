@@ -11,7 +11,7 @@ import bannerImg from "@/assets/image/banners/banner.png";
 import useProducts from "../hooks/product/useProducts";
 import Loading from "../utils/Loading";
 import Error from "../utils/Error";
-import Category from "../components/layout/Category";
+import Category from "../components/Home/Category";
 import ProductList from "../components/product-list/ProductList";
 import { formatCurrency } from "../components/product-details/sample/FomartProduct";
 
@@ -20,7 +20,7 @@ export default function HomePrivate() {
 
     // Fetch Products
     const { data, isLoading, isError, isFetching } = useProducts(page, 15);
-    const products = data?.data?.data?.content || [];
+    const products = data?.data?.data?.content || [];   
     const totalPages = data?.data?.data?.totalPages || 1;
 
     // Flash Sale Timer Logic

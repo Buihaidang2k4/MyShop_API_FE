@@ -1,5 +1,4 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
-import Layout from '@/components/layout/Layout';
 import Login from '@/pages/Login';
 import Register from '@/pages/Register';
 import PrivateRouter from './PrivateRouter.jsx';
@@ -20,6 +19,7 @@ import Admin_dashboard_page from '../pages/Admin_Dashoard_Page.jsx';
 import Admin_Dashoard_Page from '../pages/Admin_Dashoard_Page.jsx';
 import ForgotPasswordPage from '../pages/Forgot_password_Page.jsx';
 import Forgot_password_otp_page from '../pages/Forgot_password_otp_page.jsx';
+import MainLayout from '../layouts/MainLayout.jsx';
 
 const ROLES = {
   USER: 'USER',
@@ -31,7 +31,7 @@ export default function AppRouter() {
     <>
       <Routes>
         {/* Layout wrapper */}
-        <Route element={<Layout />}>
+        <Route element={<MainLayout />}>
           <Route path='/' element={<HomePublic />} />
           <Route path="search-page-by-category" element={<SearchPageByCategory />} />
           <Route path="product-details" element={<ProductDetailsWrapper />} />

@@ -1,15 +1,21 @@
-import React from 'react';
+import React, { useState } from 'react';
 import logo from '../assets/image/mylogo.png';
 import GoogleLoginButton from '../components/Login/GoogleLoginButton';
 import useLogin from '../hooks/auth/login/useLogin';
 import { Link } from 'react-router-dom';
 import useLoginForm from '../hooks/auth/login/useLoginForm';
 import useAuthRedirect from '../hooks/auth/login/useAuthRedirect';
-
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEye } from '@fortawesome/free-solid-svg-icons';
 export default function Login() {
     const { error, loading, submitLogin } = useLogin();
     const { email, password, setEmail, setPassword } = useLoginForm();
     const { redirectByRole } = useAuthRedirect();
+    const [showPassword, setShowPassword] = useState(false);
+
+    const handleClickShowPass = () => {
+        setShowPassword(!showPassword);
+    }
 
     const handleLogin = async (e) => {
         e.preventDefault();
@@ -59,10 +65,10 @@ export default function Login() {
                         </div>
 
                         {/* Password Input */}
-                        <div className="space-y-1">
+                        <div className="space-y-1 relative">
                             <label className="block text-sm font-medium text-slate-300">Password</label>
                             <input
-                                type="password"
+                                type={showPassword ? "text" : "password"}
                                 value={password}
                                 name='password'
                                 onChange={(e) => setPassword(e.target.value)}
@@ -71,6 +77,10 @@ export default function Login() {
                                 placeholder="••••••••"
                                 className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
                             />
+                            <FontAwesomeIcon
+                                onClick={handleClickShowPass}
+                               className="absolute right-5 top-10 cursor-pointer hover:scale-110 hover:text-blue-400 hover:rotate-12 transition duration-300 ease-in-out"
+                                icon={faEye} />
                         </div>
 
                         {/* Error Message */}

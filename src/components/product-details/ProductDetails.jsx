@@ -41,11 +41,9 @@ export default function ProductDetails({ product }) {
     const { data: images, isLoading: imgLoading } = useFindImageByProductId(productId);
     const { data: relatedData } = useProducts(0, 4, "productId", "asc"); // Lấy 4 sp liên quan
     const productList = relatedData?.data?.data?.content || [];
-    
     const { data: reviewData } = useFindReviewByProductId({ productId });
-    const reviews = reviewData?.reviews || [];
-
     const { mutate: addItem, isLoading: addingCart } = useAddItemToCart();
+    const reviews = reviewData?.reviews || [];
 
     // Effect: Set ảnh mặc định khi load xong
     useEffect(() => {

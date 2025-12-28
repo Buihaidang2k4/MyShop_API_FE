@@ -1,7 +1,8 @@
 import apiBase from "./apiBase";
 
-
 const productService = {
+  searchByUsers: (params) =>
+    apiBase.get("/products/search", { params }),
   getAllProducts: () => apiBase.get(`/products/all`),
   getAllProductsByPage: (page, size, sortBy, direction) => apiBase.get(`/products/page`, { params: { page, size, sortBy, direction } }),
   getProductByCategoryName: (categoryName, page, size, sortBy, direction) => apiBase.get(

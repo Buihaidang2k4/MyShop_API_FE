@@ -20,6 +20,7 @@ import Admin_Dashoard_Page from '../pages/Admin_Dashoard_Page.jsx';
 import ForgotPasswordPage from '../pages/Forgot_password_Page.jsx';
 import Forgot_password_otp_page from '../pages/Forgot_password_otp_page.jsx';
 import MainLayout from '../layouts/MainLayout.jsx';
+import ProductSearch_Page from '../pages/ProductSearch_Page.jsx';
 
 const ROLES = {
   USER: 'USER',
@@ -43,6 +44,8 @@ export default function AppRouter() {
             <Route path="home-private" element={<HomePrivate />} />
             <Route path="shop-cart" element={<CartPage />} />
             <Route path="order" element={<OrderPage />} />
+            <Route path="search-product" element={<ProductSearch_Page />} />
+
 
             <Route path="manager" element={<Manager />}>
               <Route path="manager-userinfo" element={<Manager_userInfo />} />

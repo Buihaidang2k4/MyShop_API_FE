@@ -1,4 +1,4 @@
-export default function VoucherDialog({ vouchers, onClose, onSelect }) {
+export default function VoucherDialog({ vouchers, onClose, onSelect, totalAmountOrder }) {
   return (
     <div className="fixed inset-0 bg-opacity-40 flex items-center bg-gradient-to-br from-black/40 to-gray-700/30 backdrop-blur-sm justify-center z-50">
       <div className="bg-white rounded-xl shadow-2xl w-[420px] p-6 space-y-5">
@@ -26,12 +26,16 @@ export default function VoucherDialog({ vouchers, onClose, onSelect }) {
                   </span>
                 </div>
                 <button
+                  disabled={voucher.minOrderValue > totalAmountOrder}
                   onClick={() => onSelect(voucher)}
-                  className="px-3 py-1 bg-blue-500 text-white text-sm rounded-md 
-                             hover:bg-blue-600 transition"
+                  className={`px-3 py-1 text-white text-sm rounded-md transition
+                  ${voucher.minOrderValue <= totalAmountOrder
+                      ? "bg-blue-500 hover:bg-blue-600 cursor-pointer"
+                      : "bg-gray-400 cursor-not-allowed"}`}
                 >
                   Áp dụng
                 </button>
+
               </div>
 
               <div className="text-sm text-gray-700 mt-2">

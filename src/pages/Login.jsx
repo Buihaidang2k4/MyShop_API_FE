@@ -138,7 +138,6 @@ export default function Login() {
                     {/* Social Login */}
                     <div className="flex justify-center">
                         <div className="w-full">
-                            {/* Wrapper để style lại nút Google nếu cần, hoặc để nguyên */}
                             <div className="transform transition hover:scale-[1.02]">
                                 <GoogleLoginButton />
                             </div>
@@ -157,17 +156,11 @@ export default function Login() {
 
             {/* --- BÊN PHẢI: IMAGE/BANNER --- */}
             <div className="hidden lg:block lg:w-1/2 relative overflow-hidden bg-slate-800">
-                {/* 
-                   LƯU Ý: Nếu `logo` là file nhỏ (icon), đừng dùng làm bg-cover. 
-                   Hãy dùng một ảnh Unsplash đẹp làm nền, và đặt logo đè lên hoặc chỉ dùng ảnh nền.
-                   Dưới đây tôi dùng một ảnh placeholder phong cách technology/dark.
-                */}
+              
                 <div
                     className="absolute inset-0 w-full h-full bg-cover bg-center transition-transform duration-[20s] hover:scale-110"
                     style={{
                         backgroundImage: `url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop')`
-                        // Nếu bạn muốn dùng logo của bạn làm nền (không khuyến khích nếu logo nhỏ):
-                        // backgroundImage: `url(${logo})`
                     }}
                 ></div>
 

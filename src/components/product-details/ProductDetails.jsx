@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { 
-    faShoppingCart, faStar, faCheckCircle, faShieldAlt, 
-    faTruckFast, faExchangeAlt, faMinus, faPlus 
+import {
+    faShoppingCart, faStar, faCheckCircle, faShieldAlt,
+    faTruckFast, faExchangeAlt, faMinus, faPlus
 } from '@fortawesome/free-solid-svg-icons';
 
 // Hooks & Utils
@@ -22,9 +22,6 @@ import ProductList from "../product-list/ProductList";
 import Review_detail from "./sample/Review_detail";
 
 export default function ProductDetails({ product }) {
-    const navigate = useNavigate();
-    const { data: user } = useUserInfor();
-    
     // Props destructuring
     const {
         productId, productName, description, origin,
@@ -32,17 +29,20 @@ export default function ProductDetails({ product }) {
         soldCount, reviewCount, avgRating, discount,
         inventory, category,
     } = product;
-
+    const navigate = useNavigate();
+    const { data: user } = useUserInfor();
     // --- State & Hooks ---
     const [selectedImage, setSelectedImage] = useState(logo);
     const [quantityProduct, setQuantityProduct] = useState(1);
-    
+
     // Data Fetching
     const { data: images, isLoading: imgLoading } = useFindImageByProductId(productId);
-    const { data: relatedData } = useProducts(0, 4, "productId", "asc"); // Lấy 4 sp liên quan
+    const { data: relatedData } = useProducts(0, 5, "productId", "asc");
     const productList = relatedData?.data?.data?.content || [];
     const { data: reviewData } = useFindReviewByProductId({ productId });
     const { mutate: addItem, isLoading: addingCart } = useAddItemToCart();
+
+
     const reviews = reviewData?.reviews || [];
 
     // Effect: Set ảnh mặc định khi load xong
@@ -66,10 +66,10 @@ export default function ProductDetails({ product }) {
 
     const handleAddToCart = () => {
         if (!user?.userProfile?.cartResponse?.cartId) return notify.error("Vui lòng đăng nhập!");
-        addItem({ 
-            cartId: user.userProfile.cartResponse.cartId, 
-            productId, 
-            quantity: quantityProduct 
+        addItem({
+            cartId: user.userProfile.cartResponse.cartId,
+            productId,
+            quantity: quantityProduct
         })
     };
 
@@ -79,6 +79,8 @@ export default function ProductDetails({ product }) {
             state: { mode: "single", product, images, productId, quantity: quantityProduct }
         });
     };
+
+
 
     if (imgLoading) return <Loading />;
 
@@ -120,7 +122,7 @@ export default function ProductDetails({ product }) {
                 <Breadcrumb />
 
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
-                    
+
                     {/* LEFT: IMAGE GALLERY (5 cols) */}
                     <div className="lg:col-span-5">
                         <div className="relative w-full aspect-square bg-gray-100 rounded-2xl overflow-hidden shadow-sm mb-4 group">
@@ -197,8 +199,8 @@ export default function ProductDetails({ product }) {
                             <div className="flex items-center mb-6">
                                 <span className="font-medium text-gray-700 mr-6">Số lượng:</span>
                                 <div className="flex items-center border border-gray-300 rounded-lg bg-white">
-                                    <button 
-                                        onClick={handleDecreaseQuantity} 
+                                    <button
+                                        onClick={handleDecreaseQuantity}
                                         className="w-10 h-10 flex items-center justify-center text-gray-500 hover:bg-gray-100 rounded-l-lg transition"
                                         disabled={quantityProduct <= 1}
                                     >
@@ -210,8 +212,8 @@ export default function ProductDetails({ product }) {
                                         readOnly
                                         className="w-12 h-10 text-center font-semibold text-gray-900 border-x border-gray-300 focus:outline-none"
                                     />
-                                    <button 
-                                        onClick={handleIncreaseQuantity} 
+                                    <button
+                                        onClick={handleIncreaseQuantity}
                                         className="w-10 h-10 flex items-center justify-center text-gray-500 hover:bg-gray-100 rounded-r-lg transition"
                                     >
                                         <FontAwesomeIcon icon={faPlus} size="xs" />

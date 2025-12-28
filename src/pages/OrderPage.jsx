@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from "react";
-import { data, useLocation } from "react-router-dom";
+import React, { useEffect, useMemo, useState } from "react";
+import { useLocation } from "react-router-dom";
 import { ORDER_MODE_FROM_CART, ORDER_MODE_FROM_SINGLE } from "../utils/Constant";
-import { notify } from "../utils/notify";
 import useGetCoupons from "../hooks/coupon/useGetCoupons";
 import Loading from "../utils/Loading";
 import Error from "../utils/Error";
@@ -11,11 +10,19 @@ import { formatCurrency } from "../components/product-details/sample/FomartProdu
 import GetAddressDefault from "../components/OrderPage/GetAddressDefault";
 import ListAddressDialog from "@/components/OrderPage/ListAddressDialog";
 import useGetAddressByProfileId from "../hooks/address/useGetAddressByProfileId";
+import PaymentMethod, { PAYMENT_METHODS } from "../components/OrderPage/PaymentMethod";
+import useGetItemByIds from "../hooks/cart-item/useGetItemByIds";
+import OrderItemList from "../components/OrderPage/OrderItemList";
+import { calculateOrderPrice } from "../components/OrderPage/logic/orderPricingFromCart";
+import OrderSummary from "../components/OrderPage/OrderSummary";
+import { calculateOrderPriceBuyNow } from "../components/OrderPage/logic/orderPricingFromBuyNow";
+
 export default function OrderPage() {
     const { state } = useLocation();
     const [orderParamsBuyFromCart, setOrderParamsBuyFromCart] = useState({});
     const [orderParamsBuyNow, setOrderParamsBuyNow] = useState({});
-
+    const [selectedPayment, setSelectedPayment] = useState(PAYMENT_METHODS.CASH.value);
+    
     // gán dữ liệu theo từng trường hợp mua từ giỏ hàng hay trực tiếp từ sản phẩm 
     useEffect(() => {
         switch (state?.mode) {
@@ -36,7 +43,7 @@ export default function OrderPage() {
             case ORDER_MODE_FROM_CART: {
                 const cartData = {
                     profileId: state?.profileId ?? "N/A",
-                    items: state?.cartItems ?? [],
+                    items: state?.itemIds ?? [],
                 };
                 setOrderParamsBuyFromCart(cartData);
                 break;
@@ -51,15 +58,20 @@ export default function OrderPage() {
     const { data: vouchers, isError: vouchersError, isLoading: vouchersLoading } = useGetCoupons();
     const [voucherList, setVoucherList] = useState(null);
     const [onShowVoucherDialog, setShowVoucherDialog] = useState(false)
-    const [selectVoucherDialog, setSelectVoucherDialog] = useState(false);
+    const [selectVoucherDialog, setSelectVoucherDialog] = useState(null);
     // Các phần liên quan đến địa chỉ 
     const { data: user, isError: errorUser, isLoading: loadingUser } = useUserInfor();
     const [showAddressDialog, setShowAddressDialog] = useState(false);
     const [selectAddress, setSelectAddress] = useState(null);
     const { data: addressData } = useGetAddressByProfileId(user?.userProfile?.profileId);
     const [addressList, setAddressList] = useState([]);
-    
-    // load addresslist
+    const { data: cartItems, isError: errorItems, isLoading: loadingItems } =
+        useGetItemByIds({
+            profileId: orderParamsBuyFromCart.profileId,
+            params: { ids: orderParamsBuyFromCart.items }
+        });
+
+    // load danh sach dia chi
     useEffect(() => {
         if (addressData) {
             setAddressList(addressData?.data?.data);
@@ -83,10 +95,29 @@ export default function OrderPage() {
     // address
     const addressDefaultOrSelect = selectAddress ? selectAddress : GetAddressDefault(addressList);
 
+    // tính toán giá giỏ hàng 
+    const pricing = useMemo(() => {
+        return calculateOrderPrice({
+            items: cartItems?.data?.data || [],
+            voucher: selectVoucherDialog,
+            shippingFee: 30000,
+        });
+    }, [cartItems, selectVoucherDialog]);
 
-    if (vouchersLoading || loadingUser) return <Loading />;
-    if (vouchersError || errorUser) {
-        console.log(vouchersError);
+    // tính toán giá mua ngay
+    const pricingBuyNow = useMemo(() => {
+        return calculateOrderPriceBuyNow({
+            buyNowParams: orderParamsBuyNow,
+            voucher: selectVoucherDialog,
+            shippingFee: 30000,
+        });
+    }, [orderParamsBuyNow, selectVoucherDialog]);
+
+    if (vouchersLoading || loadingUser || loadingItems) return <Loading />;
+    if (vouchersError || errorUser || errorItems) {
+        console.error(vouchersError);
+        console.error(errorUser);
+        console.error(errorItems);
         return <Error />
     }
 
@@ -107,21 +138,11 @@ export default function OrderPage() {
             {/* body */}
             <div className="flex flex-col md:flex-row sm:flex-col gap-5 m-5 ">
 
-                <section className=" flex-7 h-[800px] overflow-y-auto rounded-sm p-5  ">
-                    <div className="w-full flex flex-col items-center mt-6 mb-10">
-                        <h2 className="text-3xl font-bold text-blue-900 uppercase">
-                            DANH SÁCH SẢN PHẨM
-                        </h2>
-                        <div className="flex items-center mt-2">
-                            <span className="flex-grow h-px bg-blue-300"></span>
-                            <span className="mx-3 text-blue-500">● ● ●</span>
-                            <span className="flex-grow h-px bg-blue-300"></span>
-                        </div>
-                    </div>
+                <section className=" flex-7 h-[800px] overflow-y-auto  p-5  ">
                     {/* row Buy Now*/}
-                    {orderParamsBuyNow !== null && (
+                    {state?.mode === ORDER_MODE_FROM_SINGLE && (
                         <div
-                            className="p-5 m-4 flex flex-row gap-6 bg-white rounded-xl shadow-lg 
+                            className="p-5 flex flex-row gap-6 bg-white shadow-lg 
                             border border-gray-200 hover:shadow-2xl hover:scale-[1.02] 
                             transition-all duration-300 ease-in-out"
                         >
@@ -158,10 +179,11 @@ export default function OrderPage() {
                             </div>
                         </div>
                     )}
-
+                    {/* List Item khi mua từ giỏ hàng */}
+                    {state?.mode === ORDER_MODE_FROM_CART && <OrderItemList items={cartItems?.data?.data || []} />}
                 </section>
 
-                {/* phần bên phải - KHÔNG SCROLL */}
+                {/* phần bên phải */}
                 <section className="flex-4 rounded-md flex flex-col gap-6 p-6 bg-white shadow-md">
                     {/* Ghi chú */}
                     <div className=" p-5 space-y-3">
@@ -170,6 +192,7 @@ export default function OrderPage() {
                         </label>
                         <input
                             type="text"
+                            name="note"
                             placeholder="Nhập ghi chú sản phẩm nếu có nhắc nhở..."
                             className="w-full px-4 py-2 border-gray-50 rounded-md 
                             shadow-sm transition duration-200"
@@ -177,9 +200,10 @@ export default function OrderPage() {
                     </div>
 
                     {/* Mã giảm giá */}
-                    <div className="p-5">
+                    <div className=" p-5 space-y-3">
                         {onShowVoucherDialog &&
                             <VoucherDialog
+                                totalAmountOrder={state?.mode === ORDER_MODE_FROM_CART ? pricing.subtotal : pricingBuyNow.subtotal}
                                 vouchers={voucherList}
                                 onClose={() => (setShowVoucherDialog(false))}
                                 onSelect={(voucher) => {
@@ -191,10 +215,11 @@ export default function OrderPage() {
                             {/* Input */}
                             <input
                                 type="text"
+                                name="codeVoucher"
                                 value={selectVoucherDialog?.code ?? ""}
                                 readOnly
                                 placeholder="Chọn mã giảm giá..."
-                                className="flex-1 px-3 py-2 border border-gray-300 rounded-l-lg bg-white focus:outline-none"
+                                className="flex-1 px-3 border border-gray-300 rounded-l-lg bg-white focus:outline-none"
                             />
 
                             {/* Button */}
@@ -205,8 +230,6 @@ export default function OrderPage() {
                                 Mã giảm giá
                             </button>
                         </div>
-
-
                     </div>
 
                     {/* Địa chỉ */}
@@ -253,24 +276,32 @@ export default function OrderPage() {
                         }
                     </div>
 
+                    {/* Phương thức thanh toán  */}
+                    <PaymentMethod selectedMethod={selectedPayment} onMethodChange={setSelectedPayment} />
+
+
                     {/* Thanh toán */}
                     <div className=" p-5 space-y-2">
-                        <div className="flex justify-between text-gray-700">
-                            <span>Tổng số tiền hàng</span>
-                            <span className="font-medium">500.000đ</span>
-                        </div>
-                        <div className="flex justify-between text-gray-700">
-                            <span>Phí vận chuyển</span>
-                            <span className="font-medium">30.000đ</span>
-                        </div>
-                        <div className="flex justify-between text-gray-700">
-                            <span>Voucher giảm giá</span>
-                            <span className="font-medium text-green-600">-50.000đ</span>
-                        </div>
-                        <div className="flex justify-between text-gray-900 font-bold border-t pt-2">
-                            <span>Tổng thanh toán</span>
-                            <span>480.000đ</span>
-                        </div>
+                        {state?.mode === ORDER_MODE_FROM_SINGLE && (
+                            <OrderSummary
+                                subtotal={pricingBuyNow.subtotal}
+                                discount={pricingBuyNow.discount}
+                                shippingFee={pricingBuyNow.shippingFee}
+                                total={pricingBuyNow.total}
+                            />
+                        )
+                        }
+
+
+                        {state?.mode === ORDER_MODE_FROM_CART && (
+                            <OrderSummary
+                                subtotal={pricing.subtotal}
+                                discount={pricing.discount}
+                                shippingFee={pricing.shippingFee}
+                                total={pricing.total}
+                            />
+                        )
+                        }
                         <button
                             className="w-full mt-4 bg-red-500 text-white font-semibold py-3 rounded-md 
                             shadow hover:bg-red-600 transition duration-200"
@@ -279,10 +310,6 @@ export default function OrderPage() {
                         </button>
                     </div>
                 </section>
-
-
-
-
             </div>
         </>
     );

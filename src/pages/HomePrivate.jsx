@@ -1,248 +1,45 @@
 import { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-    faFire, faBolt, faTruckFast, faShieldHalved,
-    faHeadset, faGift, faChevronRight,
-    faEnvelope, faStar, faArrowRight
+    faFire, faBolt,
+    faChevronRight,
+    faEnvelope
 } from "@fortawesome/free-solid-svg-icons";
-import { faApple, faGooglePlay } from "@fortawesome/free-brands-svg-icons";
-
-import bannerImg from "@/assets/image/banners/banner.png";
 import useProducts from "../hooks/product/useProducts";
 import Loading from "../utils/Loading";
 import Error from "../utils/Error";
 import Category from "../components/Home/Category";
 import ProductList from "../components/product-list/ProductList";
 import { formatCurrency } from "../components/product-details/sample/FomartProduct";
+import { HeroSection } from "../components/Home/HeroSection";
+import { ServiceBar } from "../components/Home/ServiceBar";
+import { InspirationSection } from "../components/Home/InspirationSection";
+import { AppSection } from "../components/Home/AppSection";
+import { AboutShopSection } from "../components/Home/AboutShopSection";
+import useSearchProductsUser from "../hooks/product/useSearchProductUser";
 
 export default function HomePrivate() {
     const [page, setPage] = useState(0);
+    const [paramsSearch, setParamSearch] = useState({
+        keyword: null,
+        categoryName: null,
+        minPrice: null,
+        maxPrice: null,
+        hasDiscount: null,
+        bestSeller: null,
+        rating: null,
+        origin: null,
+        page: 0,
+        size: 20,
+        sort: [],
+    })
 
-    // Fetch Products
     const { data, isLoading, isError, isFetching } = useProducts(page, 15);
-    const products = data?.data?.data?.content || [];   
+    const products = data?.data?.data?.content || [];
     const totalPages = data?.data?.data?.totalPages || 1;
-
-    // Flash Sale Timer Logic
-    const [timeLeft, setTimeLeft] = useState({ hours: 2, minutes: 15, seconds: 0 });
-    useEffect(() => {
-        const timer = setInterval(() => {
-            setTimeLeft((prev) => {
-                if (prev.seconds > 0) return { ...prev, seconds: prev.seconds - 1 };
-                if (prev.minutes > 0) return { ...prev, minutes: prev.minutes - 1, seconds: 59 };
-                if (prev.hours > 0) return { ...prev, hours: prev.hours - 1, minutes: 59, seconds: 59 };
-                return prev;
-            });
-        }, 1000);
-        return () => clearInterval(timer);
-    }, []);
 
     if (isLoading) return <Loading />;
     if (isError) return <Error />;
-
-
-    const HeroSection = () => (
-        <div className="relative w-full p-5 bg-white">
-            <div className="relative w-full max-w-7xl mx-auto rounded-3xl overflow-hidden shadow-2xl group h-[350px] md:h-[450px]">
-                <img
-                    src={bannerImg}
-                    alt="banner"
-                    className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
-                />
-                <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/20 to-transparent"></div>
-                <div className="absolute left-8 md:left-16 top-1/2 -translate-y-1/2 text-white max-w-lg">
-                    <span className="bg-orange-500 text-white text-xs font-bold px-3 py-1 rounded-full uppercase mb-4 inline-block">New Arrival</span>
-                    <h2 className="text-4xl md:text-6xl font-extrabold drop-shadow-lg mb-4 leading-tight">
-                        Khám phá <br /> Công nghệ mới
-                    </h2>
-                    <p className="text-lg opacity-90 mb-6 font-light">
-                        Trải nghiệm đỉnh cao với bộ sưu tập mới nhất. Giảm giá 30% cho thành viên mới.
-                    </p>
-                    <button className="bg-white text-gray-900 px-8 py-3 rounded-full font-bold hover:bg-orange-500 hover:text-white transition-all transform hover:-translate-y-1 flex items-center gap-2">
-                        Mua ngay <FontAwesomeIcon icon={faChevronRight} size="xs" />
-                    </button>
-                </div>
-            </div>
-        </div>
-    );
-
-    const ServiceBar = () => (
-        <div className="max-w-7xl mx-auto px-6 -mt-8 relative z-10">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 bg-white p-6 rounded-xl shadow-lg border border-gray-100">
-                {[
-                    { icon: faTruckFast, title: "Miễn phí vận chuyển", sub: "Đơn từ 500k", color: "text-blue-600" },
-                    { icon: faShieldHalved, title: "Bảo hành chính hãng", sub: "100% Auth", color: "text-green-600" },
-                    { icon: faHeadset, title: "Hỗ trợ 24/7", sub: "Tư vấn tận tâm", color: "text-purple-600" },
-                    { icon: faGift, title: "Quà tặng thành viên", sub: "Voucher mỗi tuần", color: "text-red-600" }
-                ].map((item, idx) => (
-                    <div key={idx} className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-lg transition-colors cursor-default">
-                        <div className={`w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-lg ${item.color}`}>
-                            <FontAwesomeIcon icon={item.icon} />
-                        </div>
-                        <div>
-                            <h3 className="font-bold text-gray-800 text-sm">{item.title}</h3>
-                            <p className="text-xs text-gray-500">{item.sub}</p>
-                        </div>
-                    </div>
-                ))}
-            </div>
-        </div>
-    );
-
-    const InspirationSection = () => (
-        <div className="py-16 bg-white border-t border-gray-100">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                {/* Header */}
-                <div className="flex flex-col md:flex-row justify-between items-end mb-8 gap-4">
-                    <div>
-                        <span className="text-blue-600 font-bold tracking-wider uppercase text-xs mb-2 block">Lifestyle</span>
-                        <h2 className="text-3xl font-extrabold text-gray-900">Không gian & Cảm hứng</h2>
-                        <p className="text-gray-500 mt-2 text-sm max-w-xl">
-                            Khám phá các góc setup cực chất từ cộng đồng. Tìm kiếm phong cách phù hợp với cá tính của bạn.
-                        </p>
-                    </div>
-                    <button className="group flex items-center gap-2 px-5 py-2.5 bg-gray-100 hover:bg-gray-200 rounded-full font-semibold transition-all">
-                        Xem tất cả bộ sưu tập
-                        <FontAwesomeIcon icon={faArrowRight} className="group-hover:translate-x-1 transition-transform text-sm" />
-                    </button>
-                </div>
-
-                {/* Grid Layout - Masonry Style giả lập */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 h-auto md:h-[500px]">
-
-                    {/* Card Lớn - GAMING */}
-                    <div className="lg:col-span-2 row-span-2 relative group overflow-hidden rounded-2xl cursor-pointer">
-                        <img
-                            src="https://images.unsplash.com/photo-1593640408182-31c70c8268f5?w=800&q=80"
-                            alt="Gaming Setup"
-                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-6">
-                            <span className="bg-red-600 text-white text-xs font-bold px-2 py-1 rounded w-fit mb-2">HOT TREND</span>
-                            <h3 className="text-2xl font-bold text-white mb-1">Góc Gaming RGB Đỉnh Cao</h3>
-                            <p className="text-gray-300 text-sm opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300">
-                                Trọn bộ PC, Màn hình, Bàn phím cơ và đèn LED trang trí.
-                            </p>
-                        </div>
-                    </div>
-
-                    {/* Card Nhỏ 1 - WORKSPACE */}
-                    <div className="relative group overflow-hidden rounded-2xl cursor-pointer">
-                        <img
-                            src="https://images.unsplash.com/photo-1497215728101-856f4ea42174?w=600&q=80"
-                            alt="Office Setup"
-                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                        />
-                        <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors flex flex-col justify-end p-4">
-                            <h3 className="text-lg font-bold text-white">Minimalist Workspace</h3>
-                            <span className="text-xs text-gray-200">Cho người yêu sự tối giản</span>
-                        </div>
-                    </div>
-
-                    {/* Card Nhỏ 2 - AUDIO */}
-                    <div className="relative group overflow-hidden rounded-2xl cursor-pointer">
-                        <img
-                            src="https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=600&q=80"
-                            alt="Audio Setup"
-                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                        />
-                        <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors flex flex-col justify-end p-4">
-                            <h3 className="text-lg font-bold text-white">Audiophile Corner</h3>
-                            <span className="text-xs text-gray-200">Loa, Tai nghe &amp; Amply</span>
-                        </div>
-                    </div>
-
-                    {/* Card Ngang - TRAVEL (Chiếm 2 cột nhỏ) */}
-                    <div className="lg:col-span-2 relative group overflow-hidden rounded-2xl cursor-pointer">
-                        <img
-                            src="https://images.unsplash.com/photo-1515965885361-f1e0095517ea?w=800&q=80"
-                            alt="Tech Travel"
-                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-r from-black/70 to-transparent flex flex-col justify-center p-6">
-                            <h3 className="text-xl font-bold text-white mb-2">Công nghệ cho những chuyến đi</h3>
-                            <p className="text-gray-300 text-sm max-w-xs mb-4">
-                                Camera hành trình, Pin dự phòng và những phụ kiện không thể thiếu.
-                            </p>
-                            <span className="text-white text-xs font-bold underline decoration-2 underline-offset-4 hover:text-blue-400 transition">Khám phá ngay</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    );
-
-    const AppSection = () => (
-        <div className="bg-gray-900 text-white py-12 mt-10 overflow-hidden relative">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between relative z-10">
-                <div className="md:w-1/2 mb-8 md:mb-0">
-                    <span className="text-orange-400 font-bold tracking-wider uppercase text-sm">Trải nghiệm tốt hơn</span>
-                    <h2 className="text-3xl md:text-4xl font-bold mt-2 mb-4">Tải ứng dụng ngay hôm nay</h2>
-                    <p className="text-gray-400 mb-8 max-w-md">
-                        Mua sắm dễ dàng, nhận thông báo khuyến mãi độc quyền và theo dõi đơn hàng mọi lúc mọi nơi.
-                    </p>
-                    <div className="flex gap-4">
-                        <button className="flex items-center gap-3 bg-white text-gray-900 px-4 py-2 rounded-lg hover:bg-gray-100 transition">
-                            <FontAwesomeIcon icon={faApple} className="text-2xl" />
-                            <div className="text-left">
-                                <div className="text-[10px] uppercase font-bold">Download on the</div>
-                                <div className="text-sm font-bold leading-none">App Store</div>
-                            </div>
-                        </button>
-                        <button className="flex items-center gap-3 bg-transparent border border-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition">
-                            <FontAwesomeIcon icon={faGooglePlay} className="text-2xl text-green-500" />
-                            <div className="text-left">
-                                <div className="text-[10px] uppercase font-bold">Get it on</div>
-                                <div className="text-sm font-bold leading-none">Google Play</div>
-                            </div>
-                        </button>
-                    </div>
-                </div>
-                {/* Hình minh họa điện thoại (Placeholder) */}
-                <div className="md:w-1/2 flex justify-center md:justify-end">
-                    <div className="w-64 h-96 bg-gray-800 rounded-[2.5rem] border-8 border-gray-700 shadow-2xl flex items-center justify-center relative rotate-6 hover:rotate-0 transition-all duration-500">
-                        <div className="text-gray-600 font-bold">App Preview UI</div>
-                        {/* Notch */}
-                        <div className="absolute top-0 w-32 h-6 bg-gray-700 rounded-b-xl"></div>
-                    </div>
-                </div>
-            </div>
-            {/* Background Shape */}
-            <div className="absolute top-0 right-0 w-1/2 h-full bg-gray-800 skew-x-12 translate-x-20 opacity-50"></div>
-        </div>
-    );
-
-    const AboutShopSection = () => (
-        <div className="py-12 bg-gray-50 border-t border-gray-200">
-            <div className="max-w-7xl mx-auto px-4 text-center md:text-left">
-                <h3 className="text-lg font-bold text-gray-800 mb-4 uppercase">Về Chúng Tôi</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-10 text-sm text-gray-600 leading-relaxed">
-                    <div>
-                        <p className="mb-4">
-                            <strong>MyStore</strong> là điểm đến hàng đầu cho các tín đồ công nghệ và thời trang. Chúng tôi cam kết mang đến những sản phẩm chính hãng 100% với mức giá cạnh tranh nhất thị trường.
-                        </p>
-                        <p>
-                            Với sứ mệnh "Nâng tầm trải nghiệm mua sắm", chúng tôi không ngừng nỗ lực cải thiện dịch vụ, từ khâu tư vấn, đóng gói đến giao hàng, đảm bảo sự hài lòng tuyệt đối cho khách hàng.
-                        </p>
-                    </div>
-                    <div>
-                        <h4 className="font-bold text-gray-800 mb-2">Tại sao chọn chúng tôi?</h4>
-                        <ul className="space-y-2">
-                            <li className="flex items-center justify-center md:justify-start gap-2">
-                                <FontAwesomeIcon icon={faStar} className="text-yellow-400" /> Uy tín được khẳng định bởi hơn 1 triệu khách hàng.
-                            </li>
-                            <li className="flex items-center justify-center md:justify-start gap-2">
-                                <FontAwesomeIcon icon={faShieldHalved} className="text-blue-500" /> Chính sách đổi trả minh bạch, rõ ràng.
-                            </li>
-                            <li className="flex items-center justify-center md:justify-start gap-2">
-                                <FontAwesomeIcon icon={faTruckFast} className="text-green-500" /> Hệ thống kho bãi rộng khắp, giao hàng thần tốc.
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-    );
 
     return (
         <div className="bg-gray-50 min-h-screen">
@@ -270,15 +67,6 @@ export default function HomePrivate() {
                                     <FontAwesomeIcon icon={faBolt} className="mr-2 animate-bounce" />
                                     Flash Sale
                                 </h2>
-                            </div>
-
-                            {/* Countdown Timer - Style Đồng hồ số */}
-                            <div className="flex items-center gap-1 font-bold text-white">
-                                <span className="bg-gray-900 rounded px-2 py-1 text-sm">{String(timeLeft.hours).padStart(2, '0')}</span>
-                                <span className="text-gray-900 text-lg">:</span>
-                                <span className="bg-gray-900 rounded px-2 py-1 text-sm">{String(timeLeft.minutes).padStart(2, '0')}</span>
-                                <span className="text-gray-900 text-lg">:</span>
-                                <span className="bg-gray-900 rounded px-2 py-1 text-sm">{String(timeLeft.seconds).padStart(2, '0')}</span>
                             </div>
                         </div>
 

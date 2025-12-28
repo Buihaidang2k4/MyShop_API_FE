@@ -21,14 +21,14 @@ export default function CartPage() {
 
   // --- Product Recommendations ---
   const [page, setPage] = useState(0);
-  const { data, isError: errorList, isLoading: loadingList } = useProducts(page, 5, 'productId', 'asc'); 
+  const { data, isError: errorList, isLoading: loadingList } = useProducts(page, 5, 'productId', 'asc');
   const productList = data?.data?.data?.content || [];
   const totalPages = data?.data?.data?.totalPages || 1;
 
   // --- Cart Data ---
   const { data: cart, isError: cartError, isLoading: cartLoading } = useFindCartByProfileId(profileId);
   const cartItems = cart?.items || [];
-  
+
   // --- State Selection ---
   const [selectItems, setSelectItems] = useState([]);
 
@@ -42,7 +42,6 @@ export default function CartPage() {
     );
   };
 
-  // Handle Select All
   const toggleCheckAll = () => {
     const allIds = cartItems.map(item => item.id);
     const isAllChecked = selectItems.length === cartItems.length && cartItems.length > 0;
@@ -54,7 +53,6 @@ export default function CartPage() {
     if (!cart?.cartId) return;
     removeItem({ cartId: cart.cartId, cartItemId: itemId }, {
       onSuccess: () => {
-        // Xóa xong thì bỏ item đó khỏi list selected (nếu có)
         setSelectItems(prev => prev.filter(id => id !== itemId));
       },
       onError: () => notify.error("Xóa thất bại")
@@ -63,8 +61,8 @@ export default function CartPage() {
 
   // updateCartItem
   const handleQuantityChange = (id, delta) => {
-     console.log(`Update item ${id} with delta ${delta}`);
-     // Logic gọi API update quantity
+    console.log(`Update item ${id} with delta ${delta}`);
+    // Logic gọi API update quantity
   };
 
   // Handle Buy
@@ -73,15 +71,12 @@ export default function CartPage() {
       notify.info("Vui lòng chọn sản phẩm để mua");
       return;
     }
-    
-    // Lọc ra các sản phẩm được chọn
-    const selectedProducts = cartItems.filter(item => selectItems.includes(item.id));
 
     navigate('/order', {
       state: {
         mode: "cart",
-        items: selectedProducts, // Truyền list item đã chọn
-        profileId: profileId
+        profileId: profileId,
+        itemIds: selectItems
       }
     });
   };
@@ -123,21 +118,21 @@ export default function CartPage() {
   return (
     <div className="min-h-screen bg-gray-50 pb-32 pt-5">
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
-        
+
         {/* Header Title */}
         <div className="flex items-center gap-2 mb-6">
-            <h1 className="text-2xl font-bold text-gray-800">Giỏ hàng</h1>
-            <span className="text-sm font-medium text-gray-500">({cartItems.length} sản phẩm)</span>
+          <h1 className="text-2xl font-bold text-gray-800">Giỏ hàng</h1>
+          <span className="text-sm font-medium text-gray-500">({cartItems.length} sản phẩm)</span>
         </div>
 
         {/* HEADER BAR (Desktop) */}
         <div className="hidden md:grid grid-cols-12 gap-4 px-6 py-4 bg-white rounded-xl shadow-sm mb-4 text-sm font-semibold text-gray-600 border border-gray-100">
           <div className="col-span-5 flex items-center gap-3">
-            <input 
-                type="checkbox" 
-                className="w-4 h-4 accent-red-600 cursor-pointer"
-                checked={selectItems.length === cartItems.length && cartItems.length > 0}
-                onChange={toggleCheckAll}
+            <input
+              type="checkbox"
+              className="w-4 h-4 accent-red-600 cursor-pointer"
+              checked={selectItems.length === cartItems.length && cartItems.length > 0}
+              onChange={toggleCheckAll}
             />
             <span>Sản phẩm</span>
           </div>
@@ -151,148 +146,148 @@ export default function CartPage() {
         <div className="space-y-4">
           {cartItems.map((item) => (
             <div key={item.id} className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 sm:p-6 transition hover:shadow-md">
-                {/* Shop Name (Optional Header inside card) */}
-                <div className="flex items-center gap-2 mb-4 pb-3 border-b border-gray-50">
-                    <FontAwesomeIcon icon={faStore} className="text-gray-400" />
-                    <span className="text-sm font-medium text-gray-700">Cửa hàng chính hãng</span>
+              {/* Shop Name (Optional Header inside card) */}
+              <div className="flex items-center gap-2 mb-4 pb-3 border-b border-gray-50">
+                <FontAwesomeIcon icon={faStore} className="text-gray-400" />
+                <span className="text-sm font-medium text-gray-700">Cửa hàng chính hãng</span>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
+
+                {/* Product Info */}
+                <div className="col-span-1 md:col-span-5 flex items-start gap-4">
+                  <input
+                    type="checkbox"
+                    className="w-4 h-4 mt-2 accent-red-600 cursor-pointer flex-shrink-0"
+                    checked={selectItems.includes(item.id)}
+                    onChange={() => toggleCheck(item.id)}
+                  />
+                  <div className="w-24 h-24 flex-shrink-0 bg-gray-100 rounded-lg overflow-hidden border border-gray-200">
+                    <img src={item.image} alt={item.name} className="w-full h-full object-cover mix-blend-multiply" />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <h3 className="text-sm font-medium text-gray-800 line-clamp-2 leading-relaxed" title={item.name}>
+                      {item.name}
+                    </h3>
+                    <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-gray-100 text-xs text-gray-500 w-fit">
+                      <span>Phân loại: Mặc định</span>
+                    </div>
+                    <img
+                      src="https://down-vn.img.susercontent.com/file/vn-50009109-0098e6c7931f6920155b9e691461474a"
+                      alt="Freeship"
+                      className="h-4 w-auto mt-1 object-contain"
+                    />
+                  </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
-                    
-                    {/* Product Info */}
-                    <div className="col-span-1 md:col-span-5 flex items-start gap-4">
-                        <input
-                            type="checkbox"
-                            className="w-4 h-4 mt-2 accent-red-600 cursor-pointer flex-shrink-0"
-                            checked={selectItems.includes(item.id)}
-                            onChange={() => toggleCheck(item.id)}
-                        />
-                        <div className="w-24 h-24 flex-shrink-0 bg-gray-100 rounded-lg overflow-hidden border border-gray-200">
-                            <img src={item.image} alt={item.name} className="w-full h-full object-cover mix-blend-multiply" />
-                        </div>
-                        <div className="flex flex-col gap-1">
-                            <h3 className="text-sm font-medium text-gray-800 line-clamp-2 leading-relaxed" title={item.name}>
-                                {item.name}
-                            </h3>
-                            <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-gray-100 text-xs text-gray-500 w-fit">
-                                <span>Phân loại: Mặc định</span>
-                            </div>
-                            <img 
-                                src="https://down-vn.img.susercontent.com/file/vn-50009109-0098e6c7931f6920155b9e691461474a" // Free ship icon badge example
-                                alt="Freeship" 
-                                className="h-4 w-auto mt-1 object-contain" 
-                            />
-                        </div>
-                    </div>
-
-                    {/* Unit Price */}
-                    <div className="col-span-1 md:col-span-2 text-left md:text-center">
-                        <div className="md:hidden text-xs text-gray-400 mb-1">Đơn giá:</div>
-                        <span className="font-medium text-gray-700">{formatCurrency(item.price)}</span>
-                    </div>
-
-                    {/* Quantity Stepper */}
-                    <div className="col-span-1 md:col-span-2 flex items-center justify-start md:justify-center">
-                        <div className="flex items-center border border-gray-300 rounded-lg overflow-hidden">
-                            <button 
-                                onClick={() => handleQuantityChange(item.id, -1)}
-                                disabled={item.quantity <= 1}
-                                className="w-8 h-8 flex items-center justify-center bg-white hover:bg-gray-100 text-gray-600 transition disabled:opacity-50"
-                            >
-                                <FontAwesomeIcon icon={faMinus} size="xs"/>
-                            </button>
-                            <input
-                                type="text"
-                                value={item.quantity}
-                                readOnly
-                                className="w-10 h-8 text-center text-sm font-medium text-gray-800 border-x border-gray-300 focus:outline-none"
-                            />
-                            <button 
-                                onClick={() => handleQuantityChange(item.id, 1)}
-                                className="w-8 h-8 flex items-center justify-center bg-white hover:bg-gray-100 text-gray-600 transition"
-                            >
-                                <FontAwesomeIcon icon={faPlus} size="xs"/>
-                            </button>
-                        </div>
-                    </div>
-
-                    {/* Total Price */}
-                    <div className="col-span-1 md:col-span-2 text-left md:text-center">
-                        <div className="md:hidden text-xs text-gray-400 mb-1">Thành tiền:</div>
-                        <span className="font-bold text-red-600">{formatCurrency(item.price * item.quantity)}</span>
-                    </div>
-
-                    {/* Action */}
-                    <div className="col-span-1 md:col-span-1 flex justify-end md:justify-center">
-                        <button 
-                            onClick={() => handleRemoveItem(item.id)}
-                            className="text-gray-400 hover:text-red-500 transition p-2 hover:bg-red-50 rounded-full"
-                            title="Xóa sản phẩm"
-                        >
-                            <FontAwesomeIcon icon={faTrash} />
-                        </button>
-                    </div>
+                {/* Unit Price */}
+                <div className="col-span-1 md:col-span-2 text-left md:text-center">
+                  <div className="md:hidden text-xs text-gray-400 mb-1">Đơn giá:</div>
+                  <span className="font-medium text-gray-700">{formatCurrency(item.price)}</span>
                 </div>
+
+                {/* Quantity Stepper */}
+                <div className="col-span-1 md:col-span-2 flex items-center justify-start md:justify-center">
+                  <div className="flex items-center border border-gray-300 rounded-lg overflow-hidden">
+                    <button
+                      onClick={() => handleQuantityChange(item.id, -1)}
+                      disabled={item.quantity <= 1}
+                      className="w-8 h-8 flex items-center justify-center bg-white hover:bg-gray-100 text-gray-600 transition disabled:opacity-50"
+                    >
+                      <FontAwesomeIcon icon={faMinus} size="xs" />
+                    </button>
+                    <input
+                      type="text"
+                      value={item.quantity}
+                      readOnly
+                      className="w-10 h-8 text-center text-sm font-medium text-gray-800 border-x border-gray-300 focus:outline-none"
+                    />
+                    <button
+                      onClick={() => handleQuantityChange(item.id, 1)}
+                      className="w-8 h-8 flex items-center justify-center bg-white hover:bg-gray-100 text-gray-600 transition"
+                    >
+                      <FontAwesomeIcon icon={faPlus} size="xs" />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Total Price */}
+                <div className="col-span-1 md:col-span-2 text-left md:text-center">
+                  <div className="md:hidden text-xs text-gray-400 mb-1">Thành tiền:</div>
+                  <span className="font-bold text-red-600">{formatCurrency(item.price * item.quantity)}</span>
+                </div>
+
+                {/* Action */}
+                <div className="col-span-1 md:col-span-1 flex justify-end md:justify-center">
+                  <button
+                    onClick={() => handleRemoveItem(item.id)}
+                    className="text-gray-400 hover:text-red-500 transition p-2 hover:bg-red-50 rounded-full"
+                    title="Xóa sản phẩm"
+                  >
+                    <FontAwesomeIcon icon={faTrash} />
+                  </button>
+                </div>
+              </div>
             </div>
           ))}
         </div>
 
         {/* RELATED PRODUCTS */}
         <div className="mt-12">
-            <div className="flex items-center gap-2 mb-4">
-                <div className="w-1 h-6 bg-red-600 rounded-full"></div>
-                <h3 className="text-xl font-bold text-gray-800">Có thể bạn cũng thích</h3>
-            </div>
-            <ProductList products={productList} totalPages={totalPages} page={page} setPage={setPage} />
+          <div className="flex items-center gap-2 mb-4">
+            <div className="w-1 h-6 bg-red-600 rounded-full"></div>
+            <h3 className="text-xl font-bold text-gray-800">Có thể bạn cũng thích</h3>
+          </div>
+          <ProductList products={productList} totalPages={totalPages} page={page} setPage={setPage} />
         </div>
 
       </div>
 
       {/* STICKY FOOTER CHECKOUT */}
       <div className="fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-50 px-4 py-4">
-         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-            
-            {/* Left: Select All & Coupon */}
-            <div className="flex items-center gap-6 w-full md:w-auto justify-between md:justify-start">
-                <div className="flex items-center gap-2">
-                    <input 
-                        type="checkbox" 
-                        id="selectAllFooter"
-                        className="w-5 h-5 accent-red-600 cursor-pointer"
-                        checked={selectItems.length === cartItems.length && cartItems.length > 0}
-                        onChange={toggleCheckAll}
-                    />
-                    <label htmlFor="selectAllFooter" className="text-sm font-medium text-gray-700 cursor-pointer select-none">
-                        Chọn tất cả ({cartItems.length})
-                    </label>
-                </div>
-                <button className="hidden sm:flex items-center gap-2 text-red-600 font-medium text-sm hover:text-red-700">
-                    <FontAwesomeIcon icon={faTicket} />
-                    Chọn hoặc nhập mã giảm giá
-                </button>
+        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+
+          {/* Left: Select All & Coupon */}
+          <div className="flex items-center gap-6 w-full md:w-auto justify-between md:justify-start">
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                id="selectAllFooter"
+                className="w-5 h-5 accent-red-600 cursor-pointer"
+                checked={selectItems.length === cartItems.length && cartItems.length > 0}
+                onChange={toggleCheckAll}
+              />
+              <label htmlFor="selectAllFooter" className="text-sm font-medium text-gray-700 cursor-pointer select-none">
+                Chọn tất cả ({cartItems.length})
+              </label>
+            </div>
+            <button className="hidden sm:flex items-center gap-2 text-red-600 font-medium text-sm hover:text-red-700">
+              <FontAwesomeIcon icon={faTicket} />
+              Chọn hoặc nhập mã giảm giá
+            </button>
+          </div>
+
+          {/* Right: Total & Button */}
+          <div className="flex items-center gap-6 w-full md:w-auto justify-between md:justify-end">
+            <div className="flex flex-col items-end">
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-gray-600">Tổng thanh toán ({selectItems.length} sản phẩm):</span>
+                <span className="text-xl md:text-2xl font-bold text-red-600">
+                  {formatCurrency(totalSelectedPrice)}
+                </span>
+              </div>
+              <span className="text-xs text-green-600">Tiết kiệm: {formatCurrency(0)}</span>
             </div>
 
-            {/* Right: Total & Button */}
-            <div className="flex items-center gap-6 w-full md:w-auto justify-between md:justify-end">
-                <div className="flex flex-col items-end">
-                    <div className="flex items-center gap-2">
-                        <span className="text-sm text-gray-600">Tổng thanh toán ({selectItems.length} sản phẩm):</span>
-                        <span className="text-xl md:text-2xl font-bold text-red-600">
-                            {formatCurrency(totalSelectedPrice)}
-                        </span>
-                    </div>
-                    <span className="text-xs text-green-600">Tiết kiệm: {formatCurrency(0)}</span>
-                </div>
-                
-                <button
-                    onClick={handleClickBuy}
-                    className="bg-red-600 text-white px-8 py-3 rounded-lg font-bold shadow-lg shadow-red-200 hover:bg-red-700 hover:scale-105 active:scale-95 transition-all w-auto whitespace-nowrap"
-                >
-                    Mua Hàng
-                </button>
-            </div>
+            <button
+              onClick={handleClickBuy}
+              className="bg-red-600 text-white px-8 py-3 rounded-lg font-bold shadow-lg shadow-red-200 hover:bg-red-700 hover:scale-105 active:scale-95 transition-all w-auto whitespace-nowrap"
+            >
+              Mua Hàng
+            </button>
+          </div>
 
-         </div>
+        </div>
       </div>
 
     </div>

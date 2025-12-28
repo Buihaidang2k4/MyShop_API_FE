@@ -58,7 +58,7 @@ export default function ListAddressDialog({
             id="overlay"
             onClick={handleOverlayClick}
 
-            className="fixed bg-opacity-40 flex justify-end inset-0 backdrop-blur-sm z-50">
+            className="fixed top-20 bg-opacity-40 flex justify-end inset-0 backdrop-blur-sm z-50">
 
             <div className="bg-white rounded-lg shadow-lg w-full max-w-md p-6 overflow-y-scroll">
                 <div className="flex justify-between items-center mb-4">

@@ -1,13 +1,27 @@
-"use client"
-
 import { useEffect, useRef, useState } from "react"
 import logo from "@/assets/image/mylogo.png"
-import { useNavigate, Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import useAuthStore from "@/stores/useAuthStore.jsx"
 import useLogout from "@/hooks/auth/useLogout"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import ConfirmDialog from "@/utils/ConfirmDialog.jsx"
 import useHeaderAuth from "../hooks/header/useHeaderAuth"
+import { faFilter } from "@fortawesome/free-solid-svg-icons"
+import FormSearchFilter from "../components/Header/FormSearchFilter"
+
+const buildQueryString = (params) => {
+    const query = new URLSearchParams();
+
+    Object.entries(params).forEach(([key, value]) => {
+        if (value !== null && value !== undefined && value !== "") {
+            query.append(key, value);
+        }
+    });
+
+    return query.toString().replace(/\+/g, "%20");
+}
+
+
 
 export default function Header() {
     const { isLoggedIn, navigate, requireLogin } = useHeaderAuth()
@@ -16,6 +30,24 @@ export default function Header() {
     const [showProfileMenu, setShowProfileMenu] = useState(false)
     const [showDialog, setShowDialog] = useState(false)
     const menuRef = useRef(null)
+    const [showFilter, setShowFilter] = useState(false);
+    const filterRef = useRef(null);
+    const navigateHeader = useNavigate();
+    const [keywordInput, setKeywordInput] = useState("");
+
+    const [paramsSearch, setParamSearch] = useState({
+        keyword: null,
+        categoryName: null,
+        minPrice: null,
+        maxPrice: null,
+        hasDiscount: false,
+        bestSeller: null,
+        rating: null,
+        origin: null,
+        page: 0,
+        size: 20,
+        sort: ["createAt,desc"],
+    })
 
     const handleProfileClick = () => {
         const ok = requireLogin(() => setShowProfileMenu(v => !v))
@@ -23,8 +55,8 @@ export default function Header() {
     }
 
     const handleCartClick = () => {
-        const ok  = requireLogin(() => navigate("/shop-cart"));
-        if(!ok) setShowDialog(true)
+        const ok = requireLogin(() => navigate("/shop-cart"));
+        if (!ok) setShowDialog(true)
     }
 
     const handleLogoClick = () => {
@@ -40,14 +72,51 @@ export default function Header() {
         return () => document.removeEventListener("mousedown", hanldeClickOutside)
     }, [])
 
-    // func search
-    const handleSearch = (query) => {
-        console.log("Đang tìm:", query)
-        // Thực hiện logic tìm kiếm ở đây
-    }
+    useEffect(() => {
+        if (!showFilter) return;
+
+        const handleClickOutside = (event) => {
+            if (filterRef.current && !filterRef.current.contains(event.target)) {
+                setShowFilter(false);
+            }
+        };
+
+        document.addEventListener("mousedown", handleClickOutside);
+
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, [showFilter]);
+
+
+    const performSearch = () => {
+        const trimmed = keywordInput.trim();
+        if (!trimmed) return;
+
+        const queryParams = {
+            ...paramsSearch,
+            keyword: trimmed,
+            page: 0,
+        };
+
+        const queryString = buildQueryString(queryParams);
+        navigateHeader(`/search-product?${queryString}`);
+    };
+
+    // Trong JSX:
+    <input
+        type="text"
+        placeholder="Tìm kiếm sản phẩm..."
+        value={keywordInput}
+        onChange={(e) => setKeywordInput(e.target.value)}
+        onKeyDown={(e) => e.key === "Enter" && performSearch()}
+        className="..."
+    />
+
+
 
     return (
-        <header className="w-full bg-white/95 backdrop-blur-md border-b border-gray-200 sticky top-0 z-50 shadow-sm">
+        <header className="w-full bg-white/95 backdrop-blur-md border-b border-gray-200 sticky top-0 z-99 shadow-sm">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3.5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div className="flex items-center gap-3 cursor-pointer group" onClick={handleLogoClick}>
                     <div className="relative">
@@ -66,38 +135,63 @@ export default function Header() {
                     </h1>
                 </div>
 
-                <div className="flex flex-1 max-w-lg items-center relative">
-                    <div className="absolute left-3 text-gray-400">
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-5 w-5"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                        >
-                            <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                            />
+                {/* search */}
+                <div className="flex flex-1 max-w-lg items-center relative group" >
+                    {/* Search Icon */}
+                    <div className="absolute left-3 text-gray-400 pointer-events-none">
+                        <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                         </svg>
                     </div>
+
+                    {/* Input Search*/}
                     <input
                         type="text"
                         placeholder="Tìm kiếm sản phẩm..."
-                        onKeyDown={(e) => {
-                            if (e.key === "Enter") {
-                                handleSearch(e.target.value)
-                            }
-                        }}
-                        className="flex-1 pl-10 pr-4 py-2.5 rounded-lg border border-gray-300 bg-gray-50 text-gray-900 text-sm placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent focus:bg-white transition-all"
+                        value={keywordInput}
+                        onChange={(e) => setKeywordInput(e.target.value)}
+                        onKeyDown={(e) => e.key === "Enter" && performSearch()}
+                        className="w-full pl-10 pr-14 py-3 rounded-full border border-gray-200 bg-white text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 shadow-sm transition-all duration-300"
                     />
+
+                    {/* Badge HOT */}
                     <div className="absolute -top-2 left-1/2 -translate-x-1/2 hidden sm:block">
-                        <span className="bg-gradient-to-r from-orange-500 to-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm">
+                        <span className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white text-[10px] font-extrabold px-3 py-1 rounded-full shadow-md">
                             HOT
                         </span>
                     </div>
+
+                    {/* Filter Button */}
+                    <button
+                        onClick={() => setShowFilter(!showFilter)}
+                        className="absolute right-2 flex items-center gap-1.5 bg-gradient-to-r from-blue-500 to-cyan-500 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-md hover:shadow-lg hover:from-blue-600 hover:to-cyan-600 transition-all duration-300"
+                    >
+                        <FontAwesomeIcon icon={faFilter} className="text-xs" />
+                        Lọc
+                    </button>
+
+
+                    {showFilter &&
+                        <>
+                            <div ref={filterRef}>
+                                <FormSearchFilter
+                                    onApply={(filters) => {
+                                        const query = buildQueryString({
+                                            ...filters,
+                                            keyword: keywordInput || paramsSearch.keyword,
+                                            page: paramsSearch.page,
+                                            size: paramsSearch.size,
+                                            sort: paramsSearch.sort,
+                                        })
+
+                                        setShowFilter(false)
+                                        navigateHeader(`/search-product?${query}`)
+                                    }}
+                                />
+                            </div>
+                        </>
+                    }
                 </div>
 
                 <div className="flex items-center gap-5 relative">

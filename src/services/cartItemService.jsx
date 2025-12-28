@@ -2,6 +2,7 @@ import apiBase from "./apiBase";
 
 const cartItemService = {
     getCartItems: (cartId, cartItemId) => apiBase.get(`/cartItems/cart/${cartId}/cartItem/${cartItemId}`),
+   getCartItemsByIds: ({ profileId, params }) => apiBase.get(`cartItems/${profileId}/ids`, { params }),
     addItemToCart: ( {cartId, productId, quantity} ) =>
         apiBase.post("/cartItems/cartItem/addItemToCart", null,
             {

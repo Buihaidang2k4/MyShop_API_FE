@@ -17,6 +17,7 @@ export default function useLogin() {
 
     if (!result.success) {
       setError("Đăng nhập thất bại vui lòng kiểm tra lại thông tin.");
+      console.error(result)
     }
     return result;
   }

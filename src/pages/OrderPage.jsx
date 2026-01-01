@@ -139,7 +139,6 @@ export default function OrderPage() {
                     throw new Error("Không lấy được URL thanh toán VNPAY");
                 }
 
-                // redirect sang VNPAY
                 window.location.href = paymentUrl;
                 return;
             }

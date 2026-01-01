@@ -89,7 +89,7 @@ export default function Order_Details() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b pb-4">
         <div className="flex items-center gap-4">
           <button
-            onClick={() => navigate(-1)}
+            onClick={() => navigate("/manager/manage-purchase-history")}
             className="flex items-center gap-1 p-2 rounded border text-gray-700 bg-white hover:bg-gray-50 transition duration-150"
             aria-label="Quay lại"
           >

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react"
 import logo from "@/assets/image/mylogo.png"
-import { Link, useNavigate } from "react-router-dom"
+import { Link } from "react-router-dom"
 import useAuthStore from "@/stores/useAuthStore.jsx"
 import useLogout from "@/hooks/auth/useLogout"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
@@ -8,6 +8,7 @@ import ConfirmDialog from "@/utils/ConfirmDialog.jsx"
 import useHeaderAuth from "../hooks/header/useHeaderAuth"
 import { faFilter } from "@fortawesome/free-solid-svg-icons"
 import FormSearchFilter from "../components/Header/FormSearchFilter"
+import useExitOrder from "../hooks/order/useExitOrder"
 
 const buildQueryString = (params) => {
     const query = new URLSearchParams();
@@ -24,6 +25,7 @@ const buildQueryString = (params) => {
 
 
 export default function Header() {
+    const { exitOrder } = useExitOrder();
     const { isLoggedIn, navigate, requireLogin } = useHeaderAuth()
     const user = useAuthStore(state => state.user)
     const { logout } = useLogout()
@@ -32,7 +34,6 @@ export default function Header() {
     const menuRef = useRef(null)
     const [showFilter, setShowFilter] = useState(false);
     const filterRef = useRef(null);
-    const navigateHeader = useNavigate();
     const [keywordInput, setKeywordInput] = useState("");
 
     const [paramsSearch, setParamSearch] = useState({
@@ -55,12 +56,12 @@ export default function Header() {
     }
 
     const handleCartClick = () => {
-        const ok = requireLogin(() => navigate("/shop-cart"));
+        const ok = requireLogin(() => exitOrder("/shop-cart"));
         if (!ok) setShowDialog(true)
     }
 
     const handleLogoClick = () => {
-        navigate(isLoggedIn ? "/home-private" : "/")
+        exitOrder(isLoggedIn ? "/home-private" : "/")
     }
 
     // close profile khi click bên ngoài
@@ -100,7 +101,7 @@ export default function Header() {
         };
 
         const queryString = buildQueryString(queryParams);
-        navigateHeader(`/search-product?${queryString}`);
+        exitOrder(`/search-product?${queryString}`);
     };
 
     // Trong JSX:
@@ -112,8 +113,6 @@ export default function Header() {
         onKeyDown={(e) => e.key === "Enter" && performSearch()}
         className="..."
     />
-
-
 
     return (
         <header className="w-full bg-white/95 backdrop-blur-md border-b border-gray-200 sticky top-0 z-99 shadow-sm">
@@ -186,7 +185,7 @@ export default function Header() {
                                         })
 
                                         setShowFilter(false)
-                                        navigateHeader(`/search-product?${query}`)
+                                        exitOrder(`/search-product?${query}`)
                                     }}
                                 />
                             </div>
@@ -299,6 +298,7 @@ export default function Header() {
                                 <div className="py-1.5">
                                     <Link
                                         to="/manager"
+                                        onClick={() => exitOrder("/manager")}
                                         className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors"
                                     >
                                         <i className="fa-solid fa-gear w-5 text-gray-400" />

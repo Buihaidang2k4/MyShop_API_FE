@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { ORDER_MODE_FROM_CART, ORDER_MODE_FROM_SINGLE } from "../utils/Constant";
 import useGetCoupons from "../hooks/coupon/useGetCoupons";
 import Loading from "../utils/Loading";
@@ -16,13 +16,21 @@ import OrderItemList from "../components/OrderPage/OrderItemList";
 import { calculateOrderPrice } from "../components/OrderPage/logic/orderPricingFromCart";
 import OrderSummary from "../components/OrderPage/OrderSummary";
 import { calculateOrderPriceBuyNow } from "../components/OrderPage/logic/orderPricingFromBuyNow";
+import useOrderStore from "@/stores/useOrderStore";
+import { TicketPercent } from "lucide-react";
+import usePlaceOrderCommon from "../components/OrderPage/logic/orderPlaceCommon";
 
 export default function OrderPage() {
+    const navigate = useNavigate();
     const { state } = useLocation();
     const [orderParamsBuyFromCart, setOrderParamsBuyFromCart] = useState({});
     const [orderParamsBuyNow, setOrderParamsBuyNow] = useState({});
-    const [selectedPayment, setSelectedPayment] = useState(PAYMENT_METHODS.CASH.value);
-    
+    const {
+        selectedVoucher, selectedAddress, selectedPayment, orderNote,
+        setSelectedVoucher, setSelectedAddress, setSelectedPayment, setOrderNote,
+        clearOrder,
+    } = useOrderStore();
+
     // gán dữ liệu theo từng trường hợp mua từ giỏ hàng hay trực tiếp từ sản phẩm 
     useEffect(() => {
         switch (state?.mode) {
@@ -54,22 +62,22 @@ export default function OrderPage() {
         }
     }, [state]);
 
-    // voucher
     const { data: vouchers, isError: vouchersError, isLoading: vouchersLoading } = useGetCoupons();
     const [voucherList, setVoucherList] = useState(null);
     const [onShowVoucherDialog, setShowVoucherDialog] = useState(false)
-    const [selectVoucherDialog, setSelectVoucherDialog] = useState(null);
-    // Các phần liên quan đến địa chỉ 
+
     const { data: user, isError: errorUser, isLoading: loadingUser } = useUserInfor();
+
     const [showAddressDialog, setShowAddressDialog] = useState(false);
-    const [selectAddress, setSelectAddress] = useState(null);
     const { data: addressData } = useGetAddressByProfileId(user?.userProfile?.profileId);
     const [addressList, setAddressList] = useState([]);
+
     const { data: cartItems, isError: errorItems, isLoading: loadingItems } =
         useGetItemByIds({
             profileId: orderParamsBuyFromCart.profileId,
             params: { ids: orderParamsBuyFromCart.items }
         });
+    const { placeOrder } = usePlaceOrderCommon();
 
     // load danh sach dia chi
     useEffect(() => {
@@ -85,33 +93,72 @@ export default function OrderPage() {
         }
     }, [vouchers]);
 
-    // load user
-    useEffect(() => {
-        if (user?.userProfile?.addressResponse) {
-            setAddressList(user.userProfile.addressResponse);
-        }
-    }, [user]);
-
     // address
-    const addressDefaultOrSelect = selectAddress ? selectAddress : GetAddressDefault(addressList);
+    const addressDefaultOrSelect = selectedAddress ? selectedAddress : GetAddressDefault(addressList);
 
     // tính toán giá giỏ hàng 
     const pricing = useMemo(() => {
         return calculateOrderPrice({
             items: cartItems?.data?.data || [],
-            voucher: selectVoucherDialog,
+            voucher: selectedVoucher,
             shippingFee: 30000,
         });
-    }, [cartItems, selectVoucherDialog]);
+    }, [cartItems, selectedVoucher]);
 
     // tính toán giá mua ngay
     const pricingBuyNow = useMemo(() => {
         return calculateOrderPriceBuyNow({
             buyNowParams: orderParamsBuyNow,
-            voucher: selectVoucherDialog,
+            voucher: selectedVoucher,
             shippingFee: 30000,
         });
-    }, [orderParamsBuyNow, selectVoucherDialog]);
+    }, [orderParamsBuyNow, selectedVoucher]);
+
+    const handlePlaceOrder = async () => {
+        try {
+            const address = selectedAddress || addressDefaultOrSelect;
+
+            const res = await placeOrder({
+                mode: state?.mode,
+                user,
+                selectedAddress: address,
+                selectedPayment,
+                selectedVoucher,
+                orderNote,
+                pricing,
+                pricingBuyNow,
+                orderParamsBuyFromCart,
+                orderParamsBuyNow,
+            });
+
+            // VNPAY
+            if (selectedPayment === 'VNPAY') {
+                const paymentUrl = res?.data?.data;
+
+                if (!paymentUrl) {
+                    throw new Error("Không lấy được URL thanh toán VNPAY");
+                }
+
+                // redirect sang VNPAY
+                window.location.href = paymentUrl;
+                return;
+            }
+
+            // COD / tiền mặt
+            const orderId = res?.data?.data?.orderId;
+
+            if (!orderId) {
+                throw new Error("Không lấy được orderId");
+            }
+
+            navigate(`/order-details/${orderId}`);
+            clearOrder();
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+
 
     if (vouchersLoading || loadingUser || loadingItems) return <Loading />;
     if (vouchersError || errorUser || errorItems) {
@@ -142,8 +189,8 @@ export default function OrderPage() {
                     {/* row Buy Now*/}
                     {state?.mode === ORDER_MODE_FROM_SINGLE && (
                         <div
-                            className="p-5 flex flex-row gap-6 bg-white shadow-lg 
-                            border border-gray-200 hover:shadow-2xl hover:scale-[1.02] 
+                            className="p-5 flex flex-row gap-6 bg-white  border-t
+                            border-b border-gray-200 hover:shadow-2xl hover:scale-[1.02] 
                             transition-all duration-300 ease-in-out"
                         >
                             {/* Hình ảnh */}
@@ -186,18 +233,28 @@ export default function OrderPage() {
                 {/* phần bên phải */}
                 <section className="flex-4 rounded-md flex flex-col gap-6 p-6 bg-white shadow-md">
                     {/* Ghi chú */}
-                    <div className=" p-5 space-y-3">
-                        <label className="block text-gray-700 font-semibold text-sm">
-                            Ghi chú mua hàng:
+                    <div className="p-5 space-y-2">
+                        <label className="block text-sm font-medium text-gray-700">
+                            Ghi chú mua hàng
                         </label>
-                        <input
-                            type="text"
+
+                        <textarea
                             name="note"
-                            placeholder="Nhập ghi chú sản phẩm nếu có nhắc nhở..."
-                            className="w-full px-4 py-2 border-gray-50 rounded-md 
-                            shadow-sm transition duration-200"
+                            rows={3}
+                            value={orderNote}
+                            onChange={(e) => setOrderNote(e.target.value)}
+                            placeholder="Ví dụ: gọi trước khi giao, giao giờ hành chính, để hàng cho bảo vệ..."
+                            className="
+                        w-full px-4 py-3
+                        border border-gray-300 rounded-lg
+                        text-sm
+                        resize-none
+                        focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400
+                        transition
+        "
                         />
                     </div>
+
 
                     {/* Mã giảm giá */}
                     <div className=" p-5 space-y-3">
@@ -207,29 +264,21 @@ export default function OrderPage() {
                                 vouchers={voucherList}
                                 onClose={() => (setShowVoucherDialog(false))}
                                 onSelect={(voucher) => {
-                                    setSelectVoucherDialog(voucher);
+                                    setSelectedVoucher(voucher);
                                     setShowVoucherDialog(false)
                                 }} />
                         }
-                        <div className="flex">
-                            {/* Input */}
-                            <input
-                                type="text"
-                                name="codeVoucher"
-                                value={selectVoucherDialog?.code ?? ""}
-                                readOnly
-                                placeholder="Chọn mã giảm giá..."
-                                className="flex-1 px-3 border border-gray-300 rounded-l-lg bg-white focus:outline-none"
-                            />
+                        <button
+                            onClick={() => setShowVoucherDialog(true)}
+                            className=" w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-orange-50 text-orange-600 hover:bg-orange-100 transition
+                        "
+                        >
+                            <TicketPercent size={20} />
+                            <span className="text-sm font-medium">
+                                {selectedVoucher ? selectedVoucher.code : "Chọn mã giảm giá"}
+                            </span>
+                        </button>
 
-                            {/* Button */}
-                            <button
-                                onClick={() => setShowVoucherDialog(true)}
-                                className="px-4 py-2 border border-gray-300 rounded-r-lg bg-white text-gray-700 font-medium hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-200"
-                            >
-                                Mã giảm giá
-                            </button>
-                        </div>
                     </div>
 
                     {/* Địa chỉ */}
@@ -265,11 +314,11 @@ export default function OrderPage() {
                         {showAddressDialog &&
                             <ListAddressDialog
                                 addresses={addressList}
-                                selectedAddress={selectAddress}
+                                selectedAddress={selectedAddress}
                                 open={showAddressDialog}
                                 onClose={() => (setShowAddressDialog(false))}
                                 onSelect={(address) => {
-                                    setSelectAddress(address);
+                                    setSelectedAddress(address);
                                     setShowAddressDialog(false)
                                 }}
                             />
@@ -277,7 +326,7 @@ export default function OrderPage() {
                     </div>
 
                     {/* Phương thức thanh toán  */}
-                    <PaymentMethod selectedMethod={selectedPayment} onMethodChange={setSelectedPayment} />
+                    <PaymentMethod selectedPayment={selectedPayment} setSelectedPayment={setSelectedPayment} />
 
 
                     {/* Thanh toán */}
@@ -303,6 +352,7 @@ export default function OrderPage() {
                         )
                         }
                         <button
+                            onClick={handlePlaceOrder}
                             className="w-full mt-4 bg-red-500 text-white font-semibold py-3 rounded-md 
                             shadow hover:bg-red-600 transition duration-200"
                         >

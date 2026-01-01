@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
 import Form_address from "../manager/manager-item/Form_address";
 import { ADD_ADDRESS_ACTION, UPDATE_ADDRESS_ACTION } from "../../utils/Constant"
+import { SquarePen, Trash2 } from "lucide-react";
+import useDeleteAddress from "../../hooks/address/useDeleteAddress";
+import useAuthStore from "../../stores/useAuthStore";
 
 
 export default function ListAddressDialog({
@@ -10,10 +13,12 @@ export default function ListAddressDialog({
     selectedAddress,
     onSelect
 }) {
+    const { user } = useAuthStore();
     const [selectedAddressId, setSelectedAddressId] = useState(null);
     const [showFormUpdateAddress, setShowFormUpdateAddress] = useState(false);
     const [showFromAddNewAddress, setShowFromAddNewAddress] = useState(false);
     const [selectedAddressUpdate, setSelectedAddressUpdate] = useState([]);
+    const { mutateAsync: deleteAddress } = useDeleteAddress();
 
     if (!open) return null;
     useEffect(() => {
@@ -40,6 +45,11 @@ export default function ListAddressDialog({
         setShowFormUpdateAddress(false);
         setSelectedAddressUpdate([]);
         setShowFromAddNewAddress(true);
+    }
+
+    const hanldeDelteAddress = (addressId) => {
+        if (addressId === null || addressId === undefined) return;
+        deleteAddress({ profileId: user?.userProfile?.profileId, addressId });
     }
 
 
@@ -100,9 +110,18 @@ export default function ListAddressDialog({
                                     </p>
 
                                     {/*  Click cập nhật địa chỉ  */}
-                                    <div
-                                        onClick={() => hanldeClickUpdateAddress(addr)}
-                                        className="py-2 text-sm cursor-pointer text-blue-600 hover:underline"> Cập nhật</div>
+                                    <div className="flex gap-3">
+                                        <div
+                                            onClick={() => hanldeClickUpdateAddress(addr)}
+                                            className="py-2 text-sm cursor-pointer text-blue-600 hover:underline">
+                                            <SquarePen size={18} strokeWidth={1.75} />
+                                        </div>
+                                        <div
+                                            onClick={() => hanldeDelteAddress(addr.addressId)}
+                                            className="py-2 text-sm cursor-pointer text-red-700 hover:underline">
+                                            <Trash2 size={18} strokeWidth={1.75} />
+                                        </div>
+                                    </div>
                                 </div>
 
                             </label>

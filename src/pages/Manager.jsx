@@ -81,7 +81,7 @@ export default function Manager() {
                 <div className="relative bg-gradient-to-r from-[#f9fbff] via-[#eef5ff] to-[#f9fbff] w-full p-5 rounded-3xl shadow-lg border border-gray-100 flex flex-wrap md:flex-row items-center justify-center gap-x-20 transition-all duration-300 hover:shadow-2xl">
                     <Manger_action_item to={"manage-membership-levels-and-benefits"} icon={<FontAwesomeIcon icon={faUserShield} className="text-xl" />} label="Hạng thành viên" />
                     <Manger_action_item to={"manage-membership-levels-and-benefits"} icon={<FontAwesomeIcon icon={faTags} className="text-xl" />} label="Mã giảm giá" />
-                    <Manger_action_item to={"manage-purchase-history"} icon={<FontAwesomeIcon icon={faClockRotateLeft} className="text-xl" />} label={"Lịch sử mua hàng"} />
+                    <Manger_action_item to={"manage-purchase-history"} icon={<FontAwesomeIcon icon={faClockRotateLeft} className="text-xl" />} label={"Thông tin đơn hàng"} />
                     <Manger_action_item to={"manager-userinfo"} icon={<FontAwesomeIcon icon={faAddressBook} className="text-xl" />} label={"Địa chỉ"} />
                     <Manger_action_item icon={<FontAwesomeIcon icon={faLink} className="text-xl" />} label={"Liên kết tài khoản"} />
                 </div>
@@ -131,7 +131,7 @@ export default function Manager() {
                         </button>
 
                         <Manager_sidebar to={"manager-overview"} icon={<FontAwesomeIcon icon={faHome} className="text-[20px] text-red-600" />} label={"Tổng quan"} />
-                        <Manager_sidebar to={"manage-purchase-history"} icon={<FontAwesomeIcon icon={faHistory} className="text-[20px] text-blue-600" />} label={"Lịch sử mua hàng"} />
+                        <Manager_sidebar to={"manage-purchase-history"} icon={<FontAwesomeIcon icon={faHistory} className="text-[20px] text-blue-600" />} label={"Thông tin đơn hàng"} />
                         <Manager_sidebar to={"manage-membership-levels-and-benefits"} icon={<FontAwesomeIcon icon={faRankingStar} className="text-[20px] text-yellow-600" />} label={"Hạng thành viên và ưu đãi"} />
 
                         <div className="hidden md:block h-[1px] w-full bg-gray-300 my-2"></div>

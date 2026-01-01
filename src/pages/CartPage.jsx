@@ -13,6 +13,8 @@ import Loading from '@/utils/Loading';
 import Error from '@/utils/Error';
 import { notify } from '../utils/notify';
 import ProductList from '@/components/product-list/ProductList';
+import useUpdateCartItemQuantity from '../hooks/cart-item/useUpdateQuantityItem';
+import ProductImage from '../components/product-list/ProductImageUrl';
 
 export default function CartPage() {
   const navigate = useNavigate();
@@ -28,13 +30,12 @@ export default function CartPage() {
   // --- Cart Data ---
   const { data: cart, isError: cartError, isLoading: cartLoading } = useFindCartByProfileId(profileId);
   const cartItems = cart?.items || [];
-
   // --- State Selection ---
   const [selectItems, setSelectItems] = useState([]);
 
   // --- Remove Item ---
   const { mutate: removeItem, isLoading: removeLoading } = useRemoveItemFromCart();
-
+  const { mutateAsync: updateQuantityItem } = useUpdateCartItemQuantity();
   // Handle Select Single
   const toggleCheck = (itemId) => {
     setSelectItems((prev) =>
@@ -60,9 +61,13 @@ export default function CartPage() {
   };
 
   // updateCartItem
-  const handleQuantityChange = (id, delta) => {
-    console.log(`Update item ${id} with delta ${delta}`);
-    // Logic gọi API update quantity
+  const handleQuantityChange = (cartItemId, quantity, quantityChange) => {
+    if (!cart?.cartId) return;
+    const cartId = cart.cartId;
+    let newQuantity = quantity + quantityChange;
+    if (newQuantity < 1) return;
+
+    updateQuantityItem({ cartId, cartItemId, quantity: newQuantity });
   };
 
   // Handle Buy
@@ -115,6 +120,8 @@ export default function CartPage() {
     );
   }
 
+
+
   return (
     <div className="min-h-screen bg-gray-50 pb-32 pt-5">
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
@@ -163,7 +170,7 @@ export default function CartPage() {
                     onChange={() => toggleCheck(item.id)}
                   />
                   <div className="w-24 h-24 flex-shrink-0 bg-gray-100 rounded-lg overflow-hidden border border-gray-200">
-                    <img src={item.image} alt={item.name} className="w-full h-full object-cover mix-blend-multiply" />
+                    <ProductImage productId={item?.productId} />
                   </div>
                   <div className="flex flex-col gap-1">
                     <h3 className="text-sm font-medium text-gray-800 line-clamp-2 leading-relaxed" title={item.name}>
@@ -190,7 +197,7 @@ export default function CartPage() {
                 <div className="col-span-1 md:col-span-2 flex items-center justify-start md:justify-center">
                   <div className="flex items-center border border-gray-300 rounded-lg overflow-hidden">
                     <button
-                      onClick={() => handleQuantityChange(item.id, -1)}
+                      onClick={() => handleQuantityChange(item.id, item.quantity, -1)}
                       disabled={item.quantity <= 1}
                       className="w-8 h-8 flex items-center justify-center bg-white hover:bg-gray-100 text-gray-600 transition disabled:opacity-50"
                     >
@@ -199,11 +206,12 @@ export default function CartPage() {
                     <input
                       type="text"
                       value={item.quantity}
+
                       readOnly
                       className="w-10 h-8 text-center text-sm font-medium text-gray-800 border-x border-gray-300 focus:outline-none"
                     />
                     <button
-                      onClick={() => handleQuantityChange(item.id, 1)}
+                      onClick={() => handleQuantityChange(item.id, item.quantity, 1)}
                       className="w-8 h-8 flex items-center justify-center bg-white hover:bg-gray-100 text-gray-600 transition"
                     >
                       <FontAwesomeIcon icon={faPlus} size="xs" />

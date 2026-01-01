@@ -1,14 +1,13 @@
-import formatCurrency  from "./logic/FormatCurrency";
-import imgdefault from "../../assets/image/mylogo.png";
+import formatCurrency from "./logic/FormatCurrency";
+import ProductImage from "../product-list/ProductImageUrl";
 
 export default function OrderItemRow({ item }) {
     return (
-        <div className="flex gap-6 p-5 bg-white border-b">
-            <img
-                src={imgdefault}
-                className="w-24 h-24 object-cover rounded-lg"
-                alt=""
-            />
+        <div className="flex gap-6 p-5 bg-white border-b border-t">
+
+            <div className="w-24 h-24 object-cover rounded-lg border">
+                <ProductImage productId={item.productId} />
+            </div>
 
             <div className="flex flex-col flex-grow">
                 <span className="font-semibold">{item.productName}</span>

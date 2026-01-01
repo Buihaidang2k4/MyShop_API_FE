@@ -1,9 +1,9 @@
-import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import useAuthStore from "@/stores/useAuthStore";
+import useExitOrder from "../order/useExitOrder";
 
 export default function useLogout() {
-  const navigate = useNavigate();
+  const { exitOrder } = useExitOrder();
   const {logout} = useAuthStore();
 
   const handleLogout = async () => {
@@ -22,7 +22,7 @@ export default function useLogout() {
       try {
         logout();
         Swal.fire("Đăng xuất thành công", "", "success");
-        navigate("/login");
+        exitOrder("/login");
       } catch (error) {
         console.error("Logout error:", error);
         Swal.fire("Lỗi", "Không thể đăng xuất. Vui lòng thử lại.", "error");

@@ -16,7 +16,6 @@ import { ServiceBar } from "../components/Home/ServiceBar";
 import { InspirationSection } from "../components/Home/InspirationSection";
 import { AppSection } from "../components/Home/AppSection";
 import { AboutShopSection } from "../components/Home/AboutShopSection";
-import useSearchProductsUser from "../hooks/product/useSearchProductUser";
 
 export default function HomePrivate() {
     const [page, setPage] = useState(0);
@@ -37,6 +36,7 @@ export default function HomePrivate() {
     const { data, isLoading, isError, isFetching } = useProducts(page, 15);
     const products = data?.data?.data?.content || [];
     const totalPages = data?.data?.data?.totalPages || 1;
+
 
     if (isLoading) return <Loading />;
     if (isError) return <Error />;
@@ -184,7 +184,8 @@ export default function HomePrivate() {
                             products={products}
                             totalPages={totalPages}
                             page={page}
-                            setPage={setPage}
+                            setPage={page}
+                            isLoading={false}
                         />
                     </div>
                 </section>

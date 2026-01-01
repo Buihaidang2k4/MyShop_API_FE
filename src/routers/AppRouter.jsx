@@ -21,6 +21,7 @@ import ForgotPasswordPage from '../pages/Forgot_password_Page.jsx';
 import Forgot_password_otp_page from '../pages/Forgot_password_otp_page.jsx';
 import MainLayout from '../layouts/MainLayout.jsx';
 import ProductSearch_Page from '../pages/ProductSearch_Page.jsx';
+import Order_Details from '../pages/Order_Details.jsx';
 
 const ROLES = {
   USER: 'USER',
@@ -30,50 +31,54 @@ const ROLES = {
 export default function AppRouter() {
   return (
     <>
-      <Routes>
-        {/* Layout wrapper */}
-        <Route element={<MainLayout />}>
-          <Route path='/' element={<HomePublic />} />
-          <Route path="search-page-by-category" element={<SearchPageByCategory />} />
-          <Route path="product-details" element={<ProductDetailsWrapper />} />
-          <Route path="unauthorized" element={<Unauthorized />} />
+        <Routes>
+          {/* Layout wrapper */}
+          <Route element={<MainLayout />}>
+            <Route path='/' element={<HomePublic />} />
+            <Route path="search-page-by-category" element={<SearchPageByCategory />} />
+            <Route path="product-details" element={<ProductDetailsWrapper />} />
+            <Route path="unauthorized" element={<Unauthorized />} />
 
 
-          {/* USER */}
-          <Route element={<PrivateRouter allowedRoles={[ROLES.USER]} />}>
-            <Route path="home-private" element={<HomePrivate />} />
-            <Route path="shop-cart" element={<CartPage />} />
-            <Route path="order" element={<OrderPage />} />
-            <Route path="search-product" element={<ProductSearch_Page />} />
+            {/* USER */}
+            <Route element={<PrivateRouter allowedRoles={[ROLES.USER]} />}>
+              <Route path="home-private" element={<HomePrivate />} />
+              <Route path="shop-cart" element={<CartPage />} />
+
+              <Route path="order" element={<OrderPage />} />
+              <Route path="order-details/:orderId" element={<Order_Details />} />
 
 
-            <Route path="manager" element={<Manager />}>
-              <Route path="manager-userinfo" element={<Manager_userInfo />} />
-              <Route path="manager-overview" element={<Manager_overview />} />
-              <Route path="manage-purchase-history" element={<Manage_purchase_history />} />
-              <Route path="manage-membership-levels-and-benefits" element={<Manage_membership_levels_and_benefits />} />
+              <Route path="search-product" element={<ProductSearch_Page />} />
+
+
+              <Route path="manager" element={<Manager />}>
+                <Route path="manager-userinfo" element={<Manager_userInfo />} />
+                <Route path="manager-overview" element={<Manager_overview />} />
+                <Route path="manage-purchase-history" element={<Manage_purchase_history />} />
+                <Route path="manage-membership-levels-and-benefits" element={<Manage_membership_levels_and_benefits />} />
+              </Route>
             </Route>
           </Route>
-        </Route>
 
-        {/* ADMIN */}
-        <Route element={<PrivateRouter allowedRoles={[ROLES.ADMIN]} />}>
-          <Route path="/admin" element={<Admin_Dashoard_Page />} >
-            <Route index element={<Navigate to="dashboard" replace />} />
-            <Route path="dashboard" element={<Admin_dashboard_page />} />
+          {/* ADMIN */}
+          <Route element={<PrivateRouter allowedRoles={[ROLES.ADMIN]} />}>
+            <Route path="/admin" element={<Admin_Dashoard_Page />} >
+              <Route index element={<Navigate to="dashboard" replace />} />
+              <Route path="dashboard" element={<Admin_dashboard_page />} />
+            </Route>
           </Route>
-        </Route>
 
-        {/* Auth Pages */}
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-        <Route path="/forgot-password-otp" element={<Forgot_password_otp_page />} />
+          {/* Auth Pages */}
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/forgot-password-otp" element={<Forgot_password_otp_page />} />
 
 
-        {/* Catch all: Redirect unknown routes */}
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+          {/* Catch all: Redirect unknown routes */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
 
       {/* Toast container */}
       <ToastContainer />

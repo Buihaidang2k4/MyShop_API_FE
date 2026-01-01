@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { DollarSign, CreditCard } from 'lucide-react'; 
 
 export const PAYMENT_METHODS = {
@@ -14,8 +13,7 @@ export const PAYMENT_METHODS = {
   },
 };
 
-export default function PaymentMethod() {
-  const [selectedMethod, setSelectedMethod] = useState(PAYMENT_METHODS.CASH.value);
+export default function PaymentMethod({ selectedPayment: selectedPaymentMethod, setSelectedPayment: setSelectedPaymentMethod }) {
 
   return (
     <div className="p-4">
@@ -31,8 +29,8 @@ export default function PaymentMethod() {
                 type="radio"
                 name="paymentMethod"
                 value={method.value}
-                checked={selectedMethod === method.value}
-                onChange={() => setSelectedMethod(method.value)}
+                checked={selectedPaymentMethod === method.value}
+                onChange={() => setSelectedPaymentMethod(method.value)}
               />
               <Icon className="w-5 h-5" />
               <span>{method.label}</span>
@@ -43,7 +41,7 @@ export default function PaymentMethod() {
 
       {/* Lưu ý */}
       <div className="mt-4 p-3 text-sm rounded bg-yellow-50 text-yellow-800">
-        {selectedMethod === PAYMENT_METHODS.CASH.value ? (
+        {selectedPaymentMethod === PAYMENT_METHODS.CASH.value ? (
           <p><strong>Lưu ý:</strong> Thanh toán tiền mặt khi nhận hàng.</p>
         ) : (
           <p><strong>Lưu ý:</strong> Bạn sẽ được chuyển hướng đến VNPAY để thanh toán.</p>

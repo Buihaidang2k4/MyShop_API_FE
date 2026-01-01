@@ -21,6 +21,10 @@ const addresService = {
             `/address/user-profile/${profileId}/add`,
             data
         ),
+    deleteAddress: ({ profileId, addressId }) => apiBase.delete(
+        `/address/delete`,
+        { params: { profileId, addressId } }
+    ),
 };
 
 export default addresService;

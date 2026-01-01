@@ -1,16 +1,10 @@
 import useImageUrl from "@/hooks/image/useImageUrl"
-
 import { useNavigate } from "react-router-dom"
-import useAuthStore from "@/stores/useAuthStore.jsx"
-import { notify } from "@/utils/Notify.jsx"
 export default function ProductCard({ product }) {
   const { productName, description, price, discount, specialPrice, category, images } = product
 
   const imageUrl = useImageUrl(images)
   const navigate = useNavigate()
-
-  // get auth state
-  const { isLoggedIn } = useAuthStore()
 
   // check login
   function handleClickBuy() {
